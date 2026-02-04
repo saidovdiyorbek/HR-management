@@ -24,8 +24,7 @@ class UserService(
         if (userRepository.existsByUsername(request.username))
             throw IllegalArgumentException("Username ${request.username} is already registered")
 
-        if(userRepository.existsByEmail(request.email))
-            throw IllegalArgumentException("Email ${request.email} is already registered")
+
 
         userRepository.save(userMapper.toEntity(request, Role.USER))
     }

@@ -38,7 +38,6 @@ class UserEntityMapper(
             username = username,
             password = passwordEncoder.encode(password),
             role = role,
-            email = email,
             status = UserStatus.ACTIVE)
     }
 }
