@@ -37,7 +37,6 @@ class DevUserLoader(
             val devUser = User(
                 fullName = username,
                 username = username,
-                email = email,
                 password = passwordEncoder.encode("DeV#2025"),
                 role = Role.DEVELOPER,
                 status = UserStatus.ACTIVE,
