@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.reactivestreams.Publisher

@@ -1,13 +1,11 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
 import java.lang.IllegalArgumentException
 import java.util.Base64
-import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import kotlin.io.bufferedWriter
 import kotlin.io.use

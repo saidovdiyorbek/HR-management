@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.BadCredentialsException
@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono
 
 @Component
-class JwtAuthenticationConverter(
+class   JwtAuthenticationConverter(
     private val authService: AuthService,
 ) : Converter<Jwt, Mono<JwtAuthenticationToken>> {
     override fun convert(source: Jwt): Mono<JwtAuthenticationToken> {
