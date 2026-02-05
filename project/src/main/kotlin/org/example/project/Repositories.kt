@@ -56,6 +56,7 @@ interface ProjectRepository : BaseRepository<Project> {
 
 @Repository
 interface BoardRepository : BaseRepository<Board> {
+    fun findByProjectIdAndDeletedFalse(id: Long): List<Board>
 }
 
 @Repository
@@ -64,4 +65,5 @@ interface TaskStateRepository : BaseRepository<TaskState> {
 
 @Repository
 interface BoardTaskStateRepository : BaseRepository<BoardTaskState> {
+    fun findByBoardIdAndDeletedFalse(boardId: Long): List<BoardTaskState>
 }

@@ -2,8 +2,12 @@ package org.example.project
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.example.project.dtos.CurrentUserOrganizationDto
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.web.servlet.AsyncHandlerInterceptor
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
@@ -35,3 +39,5 @@ class WebMvcConfig : WebMvcConfigurer {
         })
     }
 }
+
+

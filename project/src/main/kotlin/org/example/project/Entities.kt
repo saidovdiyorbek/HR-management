@@ -38,9 +38,9 @@ class BaseEntity(
 @Entity
 @Table(name = "project")
 class Project(
-    @Column(nullable = false) val name: String,
-    @Column(columnDefinition = "TEXT") val description: String?,
-    @Column(nullable = false, name = "organization_id") val organizationId: Long,
+    @Column(nullable = false) var name: String,
+    @Column(columnDefinition = "TEXT") var description: String?,
+    @Column(nullable = false, name = "organization_id") var organizationId: Long,
     @Column(nullable = false, name = "is_active") val isActive: Boolean=true,
     @Column(name = "start_date") val startDate: LocalDate,
     @Column(name = "end_date") val endDate: LocalDate?
@@ -50,18 +50,18 @@ class Project(
 @Entity
 @Table(name = "board")
 class Board(
-    @Column(nullable = false) val name: String,
-    @Column(columnDefinition = "TEXT") val description: String?,
+    @Column(nullable = false) var name: String,
+    @Column(columnDefinition = "TEXT") var description: String?,
     @ManyToOne val project: Project
 ) : BaseEntity()
 
 @Entity
 @Table(name = "task_state")
 class TaskState(
-    @Column(nullable = false) val name: String,
-    @Column(columnDefinition = "TEXT") val description: String?,
+    @Column(nullable = false) var name: String,
+    @Column(columnDefinition = "TEXT") var description: String?,
     @Enumerated(value = EnumType.STRING)
-    @Column(length = 10) val permission: Permission,
+    @Column(length = 10) var permission: Permission,
     @Column(nullable = false, name = "company_id") val companyId: Long
 ):BaseEntity()
 
@@ -70,6 +70,6 @@ class TaskState(
 class BoardTaskState(
     @ManyToOne val board: Board,
     @ManyToOne val taskState: TaskState,
-    @Column(nullable = false) val position: Int
+    @Column(nullable = false) var position: Int
 ):BaseEntity()
 

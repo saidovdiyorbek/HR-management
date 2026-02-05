@@ -57,3 +57,16 @@ sealed class ProjectAppException(message: String? = null) : RuntimeException(mes
 class ProjectNotFoundException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.PROJECT_NOT_FOUND
 }
+
+class BoardNotFoundException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.BOARD_NOT_FOUND
+}
+
+class TaskStateNotFoundException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.TASK_STATE_NOT_FOUND
+}
+
+class BoardTaskStateNotFoundException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.BOARD_TASK_STATE_NOT_FOUND
+}
+

@@ -123,4 +123,5 @@ class BoardTaskStateMapper {
             position = dto.position
         )
     }
+
 }
