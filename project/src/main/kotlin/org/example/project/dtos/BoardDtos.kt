@@ -1,0 +1,28 @@
+package org.example.project.dtos
+
+import java.time.LocalDateTime
+
+data class BoardCreateDto(
+    val name: String,
+    val description: String,
+    val projectId: Long
+)
+
+data class BoardUpdateDto(
+    val name: String?,
+    val description: String?,
+    val projectId: Long?
+)
+
+data class BoardShortResponseDto(
+    val id: Long,
+    val name: String,
+)
+data class BoardFullResponseDto(
+    val id: Long,
+    val name: String,
+    val description: String,
+    val taskStates: List<TaskStateShortResponseDto>,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime
+)

@@ -39,6 +39,7 @@ class Project(
     @Column(nullable = false) val name: String,
     @Column(columnDefinition = "TEXT") val description: String?,
     @Column(nullable = false, name = "organization_id") val organizationId: Long,
+    @Column(nullable = false, name = "is_active") val isActive: Boolean=true,
     @Column(name = "start_date") val startDate: Date,
     @Column(name = "end_date") val endDate: Date?
 ) : BaseEntity()

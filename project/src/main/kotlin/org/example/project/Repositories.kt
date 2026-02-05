@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
 
@@ -47,4 +48,20 @@ class BaseRepositoryImpl<T : BaseEntity>(
         findAll(isNotDeletedSpecification, pageable)
 
     override fun trashList(ids: List<Long>): List<T?> = ids.map { trash(it) }
+}
+
+@Repository
+interface ProjectRepository : BaseRepository<Project> {
+}
+
+@Repository
+interface BoardRepository : BaseRepository<Board> {
+}
+
+@Repository
+interface TaskStateRepository : BaseRepository<TaskState> {
+}
+
+@Repository
+interface BoardTaskStateRepository : BaseRepository<BoardTaskState> {
 }
