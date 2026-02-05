@@ -4,7 +4,6 @@ import org.example.organization.EmployeeAlreadyExistsException
 import org.example.organization.EmployeeMapper
 import org.example.organization.EmployeeNotFoundException
 import org.example.organization.EmployeeRepository
-import org.example.organization.EmployeeRole
 import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
