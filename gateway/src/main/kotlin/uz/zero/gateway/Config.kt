@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver
 import org.springframework.context.annotation.Bean

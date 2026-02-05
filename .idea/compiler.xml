@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="organization" target="17" />
-      <module name="organization.main" target="17" />
-      <module name="organization.test" target="17" />
-    </bytecodeTargetLevel>
-  </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="attach-service" options="-parameters" />
+      <module name="attach-service.main" options="-parameters" />
+      <module name="attach-service.test" options="-parameters" />
       <module name="auth" options="-parameters" />
       <module name="auth.main" options="-parameters" />
       <module name="auth.test" options="-parameters" />
