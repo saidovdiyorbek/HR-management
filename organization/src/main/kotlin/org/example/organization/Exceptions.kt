@@ -46,3 +46,16 @@ class OrganizationAlreadyExistsException : DemoException() {
 class OrganizationNotFoundException : DemoException() {
     override fun errorCode() = ErrorCode.ORGANIZATION_NOT_FOUND
 }
+
+class OrganizationNotActiveException : DemoException() {
+    override fun errorCode() = ErrorCode.ORGANIZATION_NOT_ACTIVE
+}
+
+class EmployeeAlreadyExistsException : DemoException() {
+    override fun errorCode() = ErrorCode.EMPLOYEE_ALREADY_EXISTS
+}
+
+class EmployeeNotFoundException : DemoException() {
+    override fun errorCode() = ErrorCode.EMPLOYEE_NOT_FOUND
+}
+
