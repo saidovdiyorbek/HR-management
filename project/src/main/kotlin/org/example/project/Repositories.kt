@@ -1,11 +1,13 @@
 package org.example.project
 
 import jakarta.persistence.EntityManager
+import org.example.project.dtos.TaskStateWithPositionDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
@@ -61,6 +63,27 @@ interface BoardRepository : BaseRepository<Board> {
 
 @Repository
 interface TaskStateRepository : BaseRepository<TaskState> {
+    fun findByOrganizationIdAndDeletedFalse(organizationId: Long, pageable: Pageable) : Page<TaskState>
+
+    @Query(
+        """
+        SELECT NEW org.example.project.dtos.TaskStateWithPositionDto(ts.id, ts.permission, bt.position)
+        FROM TaskState ts 
+        JOIN BoardTaskState bt ON ts.id = bt.taskState.id 
+        WHERE ts.id = :stateId AND bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
+        """
+    )
+    fun findTaskStateWithPosition(stateId: Long, boardId: Long) : TaskStateWithPositionDto?
+
+    @Query(
+        """
+        SELECT ts 
+        FROM TaskState ts 
+        JOIN BoardTaskState bt ON ts.id = bt.taskState.id 
+        WHERE bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
+        """
+    )
+    fun findAllByBoardId(boardId: Long, pageable: Pageable) : Page<TaskState>
 }
 
 @Repository

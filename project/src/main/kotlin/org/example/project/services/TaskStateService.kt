@@ -1,5 +1,6 @@
 package org.example.project.services
 
+import org.example.project.BoardTaskStateNotFoundException
 import org.example.project.OrganizationClient
 import org.example.project.TaskStateMapper
 import org.example.project.TaskStateNotFoundException
@@ -8,6 +9,7 @@ import org.example.project.dtos.TaskStateCreateDto
 import org.example.project.dtos.TaskStateFullResponseDto
 import org.example.project.dtos.TaskStateShortResponseDto
 import org.example.project.dtos.TaskStateUpdateDto
+import org.example.project.dtos.TaskStateWithPositionDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -18,6 +20,9 @@ interface TaskStateService {
     fun delete(id: Long)
     fun getById(id: Long): TaskStateFullResponseDto
     fun getAll(pageable: Pageable): Page<TaskStateShortResponseDto>
+    fun getAllByOrganizationId(organizationId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
+    fun getTaskStateWithPosition(stateId: Long, boardId: Long): TaskStateWithPositionDto
+    fun getAllByBoard(boardId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
 }
 
 @Service
@@ -53,6 +58,30 @@ class TaskStateServiceImpl(
 
     override fun getAll(pageable: Pageable): Page<TaskStateShortResponseDto> {
         return repository.findAllNotDeleted(pageable).map { mapper.toShortDto(it) }
+    }
+
+    override fun getAllByOrganizationId(
+        organizationId: Long,
+        pageable: Pageable
+    ): Page<TaskStateShortResponseDto> {
+        return repository.findByOrganizationIdAndDeletedFalse(organizationId, pageable)
+            .map { mapper.toShortDto(it) }
+    }
+
+    override fun getTaskStateWithPosition(stateId: Long, boardId: Long): TaskStateWithPositionDto {
+        val taskStateWithPositionDto= repository.findTaskStateWithPosition(stateId, boardId)
+            ?: throw BoardTaskStateNotFoundException()
+
+        return taskStateWithPositionDto
+
+    }
+
+    override fun getAllByBoard(
+        boardId: Long,
+        pageable: Pageable
+    ): Page<TaskStateShortResponseDto> {
+        return repository.findAllByBoardId(boardId, pageable)
+            .map { mapper.toShortDto(it) }
     }
 
     private fun getCurrentUserId(): Long {

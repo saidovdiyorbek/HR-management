@@ -70,3 +70,4 @@ class BoardTaskStateNotFoundException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.BOARD_TASK_STATE_NOT_FOUND
 }
 
+

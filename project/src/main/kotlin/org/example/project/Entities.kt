@@ -21,7 +21,6 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 
 
 @MappedSuperclass
@@ -62,7 +61,7 @@ class TaskState(
     @Column(columnDefinition = "TEXT") var description: String?,
     @Enumerated(value = EnumType.STRING)
     @Column(length = 10) var permission: Permission,
-    @Column(nullable = false, name = "company_id") val companyId: Long
+    @Column(nullable = false, name = "organization_id") val organizationId: Long
 ):BaseEntity()
 
 @Entity

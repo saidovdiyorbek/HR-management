@@ -86,6 +86,15 @@ class TaskStateController(
 
     @GetMapping
     fun getAll(pageable: Pageable) = service.getAll(pageable)
+
+    @GetMapping("organization/{organizationId}")
+    fun getAllByOrganizationId(@PathVariable organizationId: Long, pageable: Pageable) = service.getAllByOrganizationId(organizationId, pageable)
+
+    @GetMapping("/board/{boardId}")
+    fun getTaskStateWithPosition(@PathVariable boardId: Long, pageable: Pageable) = service.getAllByBoard( boardId, pageable)
+
+    @GetMapping("/{stateId}/board/{boardId}")
+    fun getTaskStateWithPosition(@PathVariable stateId: Long, @PathVariable boardId: Long) = service.getTaskStateWithPosition(stateId, boardId)
 }
 
 @RestController

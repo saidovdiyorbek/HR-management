@@ -27,3 +27,9 @@ data class TaskStateFullResponseDto(
     val companyId: Long
 )
 
+data class TaskStateWithPositionDto(
+    val id: Long,
+    val permission: Permission,
+    val position: Int
+)
+

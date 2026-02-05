@@ -10,6 +10,7 @@ import org.example.project.dtos.ProjectShortResponseDto
 import org.example.project.dtos.TaskStateCreateDto
 import org.example.project.dtos.TaskStateFullResponseDto
 import org.example.project.dtos.TaskStateShortResponseDto
+import org.example.project.dtos.TaskStateWithPositionDto
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -91,7 +92,7 @@ class TaskStateMapper {
             name = dto.name,
             description = dto.description,
             permission = dto.permission,
-            companyId = companyId
+            organizationId = companyId
         )
     }
 
@@ -108,9 +109,10 @@ class TaskStateMapper {
             name = taskState.name,
             description = taskState.description ?: "",
             permission = taskState.permission,
-            companyId = taskState.companyId
+            companyId = taskState.organizationId
         )
     }
+
 }
 
 @Component
