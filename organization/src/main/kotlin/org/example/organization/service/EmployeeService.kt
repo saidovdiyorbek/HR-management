@@ -65,13 +65,7 @@ class EmployeeServiceImpl(
         val employee = employeeRepository.findByUserIdAndOrganizationIdAndDeletedFalse(userId, organizationId)
             ?: throw EmployeeNotFoundException()
 
-        body.employeeRole?.let { newRole ->
-            if (newRole == EmployeeRole.CEO && employee.employeeRole != EmployeeRole.CEO) {
-                employeeRepository.findByOrganizationIdAndEmployeeRoleAndDeletedFalse(organizationId, EmployeeRole.CEO)
-            }
-            employee.employeeRole = newRole
-        }
-
+        body.employeeRole?.let { employee.employeeRole = it }
         body.position?.let { employee.position = it }
         body.department?.let { employee.department = it }
         body.isActive?.let { employee.isActive = it }
@@ -86,11 +80,6 @@ class EmployeeServiceImpl(
         val employee = employeeRepository.findByUserIdAndOrganizationIdAndDeletedFalse(userId, organizationId)
             ?: throw EmployeeNotFoundException()
 
-        // variant-1: soft delete (deleted=true)
         employeeRepository.trash(employee.id!!)
-
-        // variant-2: faqat isActive=false (agar deleted ishlatmoqchi bo‘lmasangiz)
-        // employee.isActive = false
-        // employeeRepository.save(employee)
     }
 }
