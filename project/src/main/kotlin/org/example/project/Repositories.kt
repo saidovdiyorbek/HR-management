@@ -20,8 +20,6 @@ interface BaseRepository<T : BaseEntity> : JpaRepository<T, Long>, JpaSpecificat
     fun trashList(ids: List<Long>): List<T?>
     fun findAllNotDeleted(): List<T>
     fun findAllNotDeleted(pageable: Pageable): Page<T>
-    fun findByHhIdAndDeletedIsFalse(id: Long): T?
-    fun findByHhIdAndDeletedIsFalse(id: String): T?
 }
 
 class BaseRepositoryImpl<T : BaseEntity>(
@@ -47,26 +45,6 @@ class BaseRepositoryImpl<T : BaseEntity>(
 
     override fun findAllNotDeleted(pageable: Pageable): Page<T> =
         findAll(isNotDeletedSpecification, pageable)
-
-    override fun findByHhIdAndDeletedIsFalse(id: Long): T? =
-        findOne(
-            Specification<T> { root, _, cb ->
-                cb.and(
-                    cb.equal(root.get<Long>("hhId"), id),
-                    cb.equal(root.get<Boolean>("deleted"), false)
-                )
-            }
-        ).orElse(null)
-
-    override fun findByHhIdAndDeletedIsFalse(id: String): T?=
-        findOne(
-            Specification<T> { root, _, cb ->
-                cb.and(
-                    cb.equal(root.get<String>("hhId"), id),
-                    cb.equal(root.get<Boolean>("deleted"), false)
-                )
-            }
-        ).orElse(null)
 
     override fun trashList(ids: List<Long>): List<T?> = ids.map { trash(it) }
 }
