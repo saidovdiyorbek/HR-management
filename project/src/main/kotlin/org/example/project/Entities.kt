@@ -19,6 +19,8 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Date
 
 
@@ -26,8 +28,8 @@ import java.util.Date
 @EntityListeners(AuditingEntityListener::class)
 class BaseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
-    @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate: Date? = null,
-    @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate: Date? = null,
+    @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate:  LocalDateTime? = null,
+    @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate:  LocalDateTime? = null,
     @CreatedBy var createdBy: Long? = null,
     @LastModifiedBy var lastModifiedBy: Long? = null,
     @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false
@@ -40,8 +42,8 @@ class Project(
     @Column(columnDefinition = "TEXT") val description: String?,
     @Column(nullable = false, name = "organization_id") val organizationId: Long,
     @Column(nullable = false, name = "is_active") val isActive: Boolean=true,
-    @Column(name = "start_date") val startDate: Date,
-    @Column(name = "end_date") val endDate: Date?
+    @Column(name = "start_date") val startDate: LocalDate,
+    @Column(name = "end_date") val endDate: LocalDate?
 ) : BaseEntity()
 
 
