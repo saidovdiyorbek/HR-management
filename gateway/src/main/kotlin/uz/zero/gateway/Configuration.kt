@@ -1,9 +1,10 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.ReactiveAuthorizationManager
 
@@ -17,6 +18,7 @@ import org.springframework.web.server.WebFilter
 import reactor.core.publisher.Mono
 import kotlin.apply
 import kotlin.collections.all
+import kotlin.collections.get
 import kotlin.collections.set
 import kotlin.jvm.java
 
@@ -42,7 +44,7 @@ class SecurityConfig {
                     println("Auth error: ${ex.message}")
                     ex.printStackTrace()
                     return@authenticationEntryPoint Mono.fromRunnable { ex
-                        exchange.response.statusCode = org.springframework.http.HttpStatus.UNAUTHORIZED
+                        exchange.response.statusCode = HttpStatus.UNAUTHORIZED
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.gateway.filter.GatewayFilterChain

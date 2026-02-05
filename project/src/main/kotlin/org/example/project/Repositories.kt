@@ -1,0 +1,92 @@
+package org.example.project
+
+import jakarta.persistence.EntityManager
+import org.example.project.dtos.TaskStateWithPositionDto
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.support.JpaEntityInformation
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository
+import org.springframework.data.repository.NoRepositoryBean
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
+
+
+@NoRepositoryBean
+interface BaseRepository<T : BaseEntity> : JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+    fun findByIdAndDeletedFalse(id: Long): T?
+    fun trash(id: Long): T?
+    fun trashList(ids: List<Long>): List<T?>
+    fun findAllNotDeleted(): List<T>
+    fun findAllNotDeleted(pageable: Pageable): Page<T>
+}
+
+class BaseRepositoryImpl<T : BaseEntity>(
+    entityInformation: JpaEntityInformation<T, Long>,
+    entityManager: EntityManager,
+) : SimpleJpaRepository<T, Long>(entityInformation, entityManager), BaseRepository<T> {
+
+    private val isNotDeletedSpecification = Specification<T> { root, _, cb ->
+        cb.equal(root.get<Boolean>("deleted"), false)
+    }
+
+    override fun findByIdAndDeletedFalse(id: Long): T? =
+        findByIdOrNull(id)?.run { if (deleted) null else this }
+
+    @Transactional
+    override fun trash(id: Long): T? =
+        findByIdOrNull(id)?.run {
+            deleted = true
+            save(this)
+        }
+
+    override fun findAllNotDeleted(): List<T> = findAll(isNotDeletedSpecification)
+
+    override fun findAllNotDeleted(pageable: Pageable): Page<T> =
+        findAll(isNotDeletedSpecification, pageable)
+
+    override fun trashList(ids: List<Long>): List<T?> = ids.map { trash(it) }
+}
+
+@Repository
+interface ProjectRepository : BaseRepository<Project> {
+}
+
+@Repository
+interface BoardRepository : BaseRepository<Board> {
+    fun findByProjectIdAndDeletedFalse(id: Long): List<Board>
+}
+
+@Repository
+interface TaskStateRepository : BaseRepository<TaskState> {
+    fun findByOrganizationIdAndDeletedFalse(organizationId: Long, pageable: Pageable) : Page<TaskState>
+
+    @Query(
+        """
+        SELECT NEW org.example.project.dtos.TaskStateWithPositionDto(ts.id, ts.permission, bt.position)
+        FROM TaskState ts 
+        JOIN BoardTaskState bt ON ts.id = bt.taskState.id 
+        WHERE ts.id = :stateId AND bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
+        """
+    )
+    fun findTaskStateWithPosition(stateId: Long, boardId: Long) : TaskStateWithPositionDto?
+
+    @Query(
+        """
+        SELECT ts 
+        FROM TaskState ts 
+        JOIN BoardTaskState bt ON ts.id = bt.taskState.id 
+        WHERE bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
+        """
+    )
+    fun findAllByBoardId(boardId: Long, pageable: Pageable) : Page<TaskState>
+}
+
+@Repository
+interface BoardTaskStateRepository : BaseRepository<BoardTaskState> {
+    fun findByBoardIdAndDeletedFalse(boardId: Long): List<BoardTaskState>
+}

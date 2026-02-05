@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

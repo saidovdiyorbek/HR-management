@@ -1,4 +1,4 @@
-package com.example.gateway_service
+package uz.zero.gateway
 
 
 const val USER_ID_KEY = "id"
