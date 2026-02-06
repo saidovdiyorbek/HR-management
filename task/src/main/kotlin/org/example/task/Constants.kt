@@ -13,4 +13,5 @@ const val ROLE_LEVEL_KEY = "roll"
 const val DEV_ROLE = "DEV"
 const val USER_DETAILS_HEADER_KEY = "X-User-Details"
 const val ACTIVE = "ACTIVE"
+const val JWT_ROLE_KEY = "rol"
 val PRINCIPAL_KEY: String = Principal::class.java.name
