@@ -120,4 +120,6 @@ class BoardInternalController(
 
     @PostMapping("/check-relationships")
     fun checkRelationships(@RequestBody body: RelationshipsCheckDto): Boolean = service.checkRelationships(body)
+
+
 }

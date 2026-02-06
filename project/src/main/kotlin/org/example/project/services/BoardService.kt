@@ -4,10 +4,13 @@ import org.example.project.BoardMapper
 import org.example.project.BoardNotFoundException
 import org.example.project.BoardRepository
 import org.example.project.ProjectEndException
+import org.example.project.ProjectIsNotActiveException
 import org.example.project.ProjectNotFoundException
-import org.example.project.ProjectNotStartedException
 import org.example.project.ProjectRepository
 import org.example.project.SecurityUtil
+import org.example.project.StateIsNotFirstException
+import org.example.project.StateNotConnnectedToBoardException
+import org.example.project.TaskStateRepository
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardFullResponseDto
 import org.example.project.dtos.BoardShortResponseDto
@@ -30,6 +33,7 @@ interface BoardService {
 class BoardServiceImpl(
     private val repository: BoardRepository,
     private val mapper: BoardMapper,
+    private val taskStateRepository: TaskStateRepository,
     private val projectRepository: ProjectRepository,
     private val securityUtil: SecurityUtil,
 ) : BoardService {
@@ -65,16 +69,22 @@ class BoardServiceImpl(
     override fun checkRelationships(body: RelationshipsCheckDto): Boolean {
         repository.findByIdAndDeletedFalse(body.boardId)?.let{ board ->
             projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
-                if (project.startDate == null) {
-                    throw ProjectNotStartedException()
-                }
                 if (project.endDate != null) {
                     throw ProjectEndException()
+                }
+                if(project.isActive==false){
+                    throw ProjectIsNotActiveException()
+                }
+                val stateOrder =taskStateRepository.findTaskStateWithPosition(body.stateId, body.boardId)
+                    ?:throw StateNotConnnectedToBoardException()
+
+                if(stateOrder.position !=1){
+                    throw StateIsNotFirstException()
                 }
 
             }
 
         }
-        TODO()
+        return true
     }
 }

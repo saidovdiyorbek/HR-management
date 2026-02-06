@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service
 interface BoardTaskStateService {
     fun create(dto: BoardTaskStateCreateDto)
     fun delete(id: Long)
+    fun getByBoardId(boardId: Long): List<BoardTaskStateCreateDto>
+    fun getByTaskStateId(taskStateId: Long): List<BoardTaskStateCreateDto>
 }
 
 @Service
@@ -33,4 +35,14 @@ class BoardTaskStateServiceImpl(
     override fun delete(id: Long) {
         repository.trash(id)
     }
+
+    override fun getByBoardId(boardId: Long): List<BoardTaskStateCreateDto> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getByTaskStateId(taskStateId: Long): List<BoardTaskStateCreateDto> {
+        TODO("Not yet implemented")
+    }
+
+
 }
