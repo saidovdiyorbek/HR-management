@@ -84,5 +84,11 @@ class StateIsNotFirstException(): ProjectAppException(){
 class StateNotConnnectedToBoardException(): ProjectAppException(){
     override fun errorType(): ErrorCode = ErrorCode.STATE_NOT_CONNNECTED_TO_BOARD
 }
+class NotPermitedToTransferTaskException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.NOT_PERMITED_TO_TRANSFER_TASK
+}
+class OrdersOfStatesIsIncorrectException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.ORDERS_OF_STATES_IS_INCORRECT
+}
 
 

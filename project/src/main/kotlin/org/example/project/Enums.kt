@@ -14,6 +14,8 @@ enum class ErrorCode(val code: Int) {
     PROJECT_ENDED(405),
     STATE_IS_NOT_FIRST(406),
     STATE_NOT_CONNNECTED_TO_BOARD(407),
+    NOT_PERMITED_TO_TRANSFER_TASK(408),
+    ORDERS_OF_STATES_IS_INCORRECT(409),
 }
 
 enum class Role {
