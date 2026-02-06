@@ -9,6 +9,7 @@ import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
+import org.example.organization.dto.EmployeeRoleResponse
 import org.example.organization.dto.EmployeeUpdateRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional
 interface EmployeeService {
     fun addEmployee(organizationId: Long, body: EmployeeCreateRequest, createdByUserId: Long?)
     fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse>
-    fun getMyOrganizations(userId: Long): List<Long>
     fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest)
     fun removeEmployee(organizationId: Long, userId: Long)
+    fun getEmployeeRoleByUserId(userId: Long): EmployeeRoleResponse
 }
 
 @Service
@@ -51,11 +52,6 @@ class EmployeeServiceImpl(
             .map { mapper.toResponse(it) }
     }
 
-    override fun getMyOrganizations(userId: Long): List<Long> {
-        return employeeRepository.findAllByUserIdAndDeletedFalse(userId)
-            .map { it.organization.id!! }
-            .distinct()
-    }
 
     @Transactional
     override fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest) {
@@ -80,5 +76,12 @@ class EmployeeServiceImpl(
             ?: throw EmployeeNotFoundException()
 
         employeeRepository.trash(employee.id!!)
+    }
+
+    override fun getEmployeeRoleByUserId(userId: Long): EmployeeRoleResponse {
+        employeeRepository.findByIdAndDeletedFalse(userId)?.let { employee ->
+            return EmployeeRoleResponse(employee.employeeRole)
+        }
+      throw EmployeeNotFoundException()
     }
 }

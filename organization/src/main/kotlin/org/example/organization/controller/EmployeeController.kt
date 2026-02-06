@@ -2,34 +2,32 @@ package org.example.organization.controller
 
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
+import org.example.organization.dto.EmployeeRoleResponse
 import org.example.organization.dto.EmployeeUpdateRequest
 import org.example.organization.service.EmployeeService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/organizations/{organizationId}/employees")
+@RequestMapping("/employees")
 class EmployeeController(
     private val service: EmployeeService
 ) {
 
-    @PostMapping
+    @PostMapping("/{organizationId}")
     fun addEmployee(
         @PathVariable organizationId: Long,
         @RequestBody body: EmployeeCreateRequest,
         @RequestParam(required = false) createdByUserId: Long?
-    ): ResponseEntity<Unit> {
-        service.addEmployee(organizationId, body, createdByUserId)
-        return ResponseEntity.ok().build()
-    }
+    ) = service.addEmployee(organizationId, body, createdByUserId)
 
-    @GetMapping
+    @GetMapping("/{organizationId}")
     fun getEmployeesByOrganization(
         @PathVariable organizationId: Long
     ): List<EmployeeResponse> =
         service.getEmployeesByOrganization(organizationId)
 
-    @PutMapping("/{userId}")
+    @PutMapping("/{userId}/{organizationId}")
     fun updateEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
@@ -39,7 +37,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{userId}/{organizationId}")
     fun removeEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long
@@ -50,12 +48,11 @@ class EmployeeController(
 }
 
 @RestController
-@RequestMapping("/api/users")
-class UserOrganizationsController(
+@RequestMapping("/internal/api/v1/employees")
+class EmployeeInternalController(
     private val service: EmployeeService
 ) {
+    @GetMapping("/get-employee-role/{userId}")
+    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse = service.getEmployeeRoleByUserId(userId)
 
-    @GetMapping("/{userId}/organizations")
-    fun getMyOrganizations(@PathVariable userId: Long): List<Long> =
-        service.getMyOrganizations(userId)
 }

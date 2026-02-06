@@ -29,3 +29,7 @@ data class EmployeeResponse(
     val isActive: Boolean,
     val joinedAt: LocalDateTime
 )
+
+data class EmployeeRoleResponse(
+    val employeeRole: EmployeeRole
+)
