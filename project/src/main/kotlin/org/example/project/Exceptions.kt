@@ -69,11 +69,26 @@ class TaskStateNotFoundException() : ProjectAppException() {
 class BoardTaskStateNotFoundException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.BOARD_TASK_STATE_NOT_FOUND
 }
-class ProjectNotStartedException() : ProjectAppException() {
-    override fun errorType(): ErrorCode = ErrorCode.PROJECT_NOT_STARTED
+
+class ProjectIsNotActiveException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.PROJECT_IS_NOT_ACTIVE
 }
 class ProjectEndException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.PROJECT_ENDED
+}
+
+class StateIsNotFirstException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.STATE_IS_NOT_FIRST
+}
+
+class StateNotConnnectedToBoardException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.STATE_NOT_CONNNECTED_TO_BOARD
+}
+class NotPermitedToTransferTaskException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.NOT_PERMITED_TO_TRANSFER_TASK
+}
+class OrdersOfStatesIsIncorrectException(): ProjectAppException(){
+    override fun errorType(): ErrorCode = ErrorCode.ORDERS_OF_STATES_IS_INCORRECT
 }
 
 

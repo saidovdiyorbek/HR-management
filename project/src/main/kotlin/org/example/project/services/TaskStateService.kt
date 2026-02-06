@@ -1,6 +1,8 @@
 package org.example.project.services
 
 import org.example.project.BoardTaskStateNotFoundException
+import org.example.project.NotPermitedToTransferTaskException
+import org.example.project.OrdersOfStatesIsIncorrectException
 import org.example.project.OrganizationClient
 import org.example.project.TaskStateMapper
 import org.example.project.TaskStateNotFoundException
@@ -10,6 +12,7 @@ import org.example.project.dtos.TaskStateFullResponseDto
 import org.example.project.dtos.TaskStateShortResponseDto
 import org.example.project.dtos.TaskStateUpdateDto
 import org.example.project.dtos.TaskStateWithPositionDto
+import org.example.project.dtos.TransferTaskCheckDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -23,6 +26,7 @@ interface TaskStateService {
     fun getAllByOrganizationId(organizationId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
     fun getTaskStateWithPosition(stateId: Long, boardId: Long): TaskStateWithPositionDto
     fun getAllByBoard(boardId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
+    fun transferTaskCheck(dto: TransferTaskCheckDto): Boolean
 }
 
 @Service
@@ -83,6 +87,22 @@ class TaskStateServiceImpl(
         return repository.findAllByBoardId(boardId, pageable)
             .map { mapper.toShortDto(it) }
     }
+
+    override fun transferTaskCheck(dto: TransferTaskCheckDto): Boolean {
+        val from = repository.findTaskStateWithPosition(dto.fromStateId, dto.boardId)
+            ?: throw BoardTaskStateNotFoundException()
+        val to = repository.findTaskStateWithPosition(dto.toStateId, dto.boardId)
+            ?: throw BoardTaskStateNotFoundException()
+        if(to.permission !=dto.permission) {
+            throw NotPermitedToTransferTaskException()
+        }
+        if(from.position+1 != to.position){
+            throw OrdersOfStatesIsIncorrectException()
+        }
+
+        return true
+    }
+
 
     private fun getCurrentUserId(): Long {
         TODO("get user id from security context it implements later")

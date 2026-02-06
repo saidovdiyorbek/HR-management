@@ -7,8 +7,8 @@ import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectUpdateDto
 import org.example.project.dtos.RelationshipsCheckDto
 import org.example.project.dtos.TaskStateCreateDto
-import org.example.project.dtos.TaskStateShortResponseDto
 import org.example.project.dtos.TaskStateUpdateDto
+import org.example.project.dtos.TransferTaskCheckDto
 import org.example.project.services.BoardService
 import org.example.project.services.BoardTaskStateService
 import org.example.project.services.ProjectService
@@ -114,10 +114,15 @@ class BoardTaskStateController(
 //Internal
 @RestController
 @RequestMapping("/internal/api/v1/posts")
-class BoardInternalController(
-    private val service: BoardService
+class InternalController(
+    private val boardService: BoardService,
+    private val stateService: TaskStateService
 ) {
 
     @PostMapping("/check-relationships")
-    fun checkRelationships(@RequestBody body: RelationshipsCheckDto): Boolean = service.checkRelationships(body)
+    fun checkRelationships(@RequestBody body: RelationshipsCheckDto): Boolean = boardService.checkRelationships(body)
+
+    @PostMapping("/check-state-relationships")
+    fun checkTransferStates(@RequestBody body: TransferTaskCheckDto): Boolean = stateService.transferTaskCheck(body)
+
 }
