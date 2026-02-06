@@ -87,4 +87,3 @@ interface EmployeeContextRepository : BaseRepository<EmployeeContext> {
 
     fun existsByUserIdAndDeletedFalse(userId: Long): Boolean
 }
-

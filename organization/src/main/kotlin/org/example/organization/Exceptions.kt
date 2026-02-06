@@ -59,3 +59,10 @@ class EmployeeNotFoundException : DemoException() {
     override fun errorCode() = ErrorCode.EMPLOYEE_NOT_FOUND
 }
 
+class EmployeeNotInOrganizationException : DemoException() {
+    override fun errorCode() = ErrorCode.EMPLOYEE_NOT_IN_ORGANIZATION
+}
+
+class EmployeeContextNotFoundException : DemoException() {
+    override fun errorCode() = ErrorCode.EMPLOYEE_CONTEX_NOT_FOUND
+}
