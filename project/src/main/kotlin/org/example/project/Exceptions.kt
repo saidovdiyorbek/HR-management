@@ -69,5 +69,11 @@ class TaskStateNotFoundException() : ProjectAppException() {
 class BoardTaskStateNotFoundException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.BOARD_TASK_STATE_NOT_FOUND
 }
+class ProjectNotStartedException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.PROJECT_NOT_STARTED
+}
+class ProjectEndException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.PROJECT_ENDED
+}
 
 
