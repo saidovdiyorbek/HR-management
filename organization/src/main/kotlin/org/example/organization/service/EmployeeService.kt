@@ -10,6 +10,7 @@ import org.example.organization.OrganizationRepository
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
+import org.example.organization.dto.EmployeeRoleUpdateRequest
 import org.example.organization.dto.EmployeeUpdateRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +21,7 @@ interface EmployeeService {
     fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest)
     fun removeEmployee(organizationId: Long, userId: Long)
     fun getEmployeeRoleByUserId(userId: Long): EmployeeRoleResponse
+    fun updateEmployeeRole(organizationId: Long, userId: Long, body: EmployeeRoleUpdateRequest)
 }
 
 @Service
@@ -60,7 +62,6 @@ class EmployeeServiceImpl(
         val employee = employeeRepository.findByUserIdAndOrganizationIdAndDeletedFalse(userId, organizationId)
             ?: throw EmployeeNotFoundException()
 
-        body.employeeRole?.let { employee.employeeRole = it }
         body.position?.let { employee.position = it }
         body.department?.let { employee.department = it }
         body.isActive?.let { employee.isActive = it }
@@ -83,5 +84,21 @@ class EmployeeServiceImpl(
             return EmployeeRoleResponse(employee.employeeRole)
         }
       throw EmployeeNotFoundException()
+    }
+
+    override fun updateEmployeeRole(
+        organizationId: Long,
+        userId: Long,
+        body: EmployeeRoleUpdateRequest
+    ) {
+        organizationRepository.findByIdAndDeletedFalse(organizationId)
+            ?: throw OrganizationNotFoundException()
+
+        val employee = employeeRepository
+            .findByUserIdAndOrganizationIdAndDeletedFalse(userId, organizationId)
+            ?: throw EmployeeNotFoundException()
+
+        employee.employeeRole = body.employeeRole
+        employeeRepository.save(employee)
     }
 }

@@ -3,6 +3,7 @@ package org.example.organization.controller
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
+import org.example.organization.dto.EmployeeRoleUpdateRequest
 import org.example.organization.dto.EmployeeUpdateRequest
 import org.example.organization.service.EmployeeService
 import org.springframework.http.ResponseEntity
@@ -45,6 +46,13 @@ class EmployeeController(
         service.removeEmployee(organizationId, userId)
         return ResponseEntity.ok().build()
     }
+
+    @PutMapping("/{userId}/{organizationId}")
+    fun updateEmployeeRole(
+        @PathVariable organizationId: Long,
+        @PathVariable userId: Long,
+        @RequestBody body: EmployeeRoleUpdateRequest
+    ) = service.updateEmployeeRole(organizationId, userId, body)
 }
 
 @RestController
