@@ -54,13 +54,10 @@ class BaseRepositoryImpl<T : BaseEntity>(
 @Repository
 interface OrganizationRepository : BaseRepository<Organization> {
 
-    /** Organization nomi bo'yicha topish (duplicate tekshiruv uchun) */
     fun findByNameIgnoreCase(name: String): Organization?
 
-    /** Organization nomi bo‘yicha mavjudligini tekshiradi (create/update paytida) */
     fun existsByNameIgnoreCase(name: String): Boolean
 
-    /** Soft-delete bo‘lmagan orglarni qaytaradi (BaseRepository’dagi findAllNotDeleted bilan ham bo‘ladi) */
     fun findAllByDeletedFalse(): List<Organization>
 }
 
@@ -68,19 +65,14 @@ interface OrganizationRepository : BaseRepository<Organization> {
 @Repository
 interface EmployeeRepository : BaseRepository<Employee> {
 
-    /** Bitta user bitta org’da allaqachon membership bormi (duplicate’ni oldini oladi) */
     fun existsByUserIdAndOrganizationId(userId: Long, organizationId: Long): Boolean
 
-    /** Userning ma’lum org’dagi membership’ini topadi (role tekshirish, context set uchun) */
     fun findByUserIdAndOrganizationIdAndDeletedFalse(userId: Long, organizationId: Long): Employee?
 
-    /** User qaysi organizationlarda ishlashini chiqaradi (My organizations) */
     fun findAllByUserIdAndDeletedFalse(userId: Long): List<Employee>
 
-    /** Organization ichidagi employee’larni chiqaradi (admin panel / employee list) */
     fun findAllByOrganizationIdAndDeletedFalse(organizationId: Long): List<Employee>
 
-    /** Organization ichida CEO kimligini topish (agar 1 ta CEO bo‘lishi kerak bo‘lsa) */
     fun findByOrganizationIdAndEmployeeRoleAndDeletedFalse(
         organizationId: Long,
         employeeRole: EmployeeRole
@@ -91,10 +83,8 @@ interface EmployeeRepository : BaseRepository<Employee> {
 @Repository
 interface EmployeeContextRepository : BaseRepository<EmployeeContext> {
 
-    /** Userning current organization context’ini topadi (qaysi org tanlangan) */
     fun findByUserIdAndDeletedFalse(userId: Long): EmployeeContext?
 
-    /** Userda context mavjudligini tekshiradi (create vs update uchun) */
     fun existsByUserIdAndDeletedFalse(userId: Long): Boolean
 }
 
