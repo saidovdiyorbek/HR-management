@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 
-@FeignClient(name = "organization-service", url = "\${organization.service.host}")
+@FeignClient(name = "organization-service", url = "\${services.hosts.organization}/internal/api/v1/organizations")
 interface OrganizationClient {
     @GetMapping("/organization/current/{id}")
     fun getCurrentUserOrganization(@PathVariable id:Long): CurrentUserOrganizationDto

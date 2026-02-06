@@ -3,12 +3,16 @@ package org.example.project.services
 import org.example.project.BoardMapper
 import org.example.project.BoardNotFoundException
 import org.example.project.BoardRepository
+import org.example.project.ProjectEndException
 import org.example.project.ProjectNotFoundException
+import org.example.project.ProjectNotStartedException
 import org.example.project.ProjectRepository
+import org.example.project.SecurityUtil
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardFullResponseDto
 import org.example.project.dtos.BoardShortResponseDto
 import org.example.project.dtos.BoardUpdateDto
+import org.example.project.dtos.RelationshipsCheckDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -19,13 +23,15 @@ interface BoardService {
     fun delete(id: Long)
     fun getById(id: Long): BoardFullResponseDto
     fun getAll(pageable: Pageable): Page<BoardShortResponseDto>
+    fun checkRelationships(body: RelationshipsCheckDto): Boolean
 }
 
 @Service
 class BoardServiceImpl(
     private val repository: BoardRepository,
     private val mapper: BoardMapper,
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val securityUtil: SecurityUtil,
 ) : BoardService {
     override fun create(dto: BoardCreateDto) {
         val project = projectRepository.findByIdAndDeletedFalse(dto.projectId)
@@ -54,5 +60,21 @@ class BoardServiceImpl(
 
     override fun getAll(pageable: Pageable): Page<BoardShortResponseDto> {
         return repository.findAllNotDeleted(pageable).map { mapper.toShortDto(it) }
+    }
+
+    override fun checkRelationships(body: RelationshipsCheckDto): Boolean {
+        repository.findByIdAndDeletedFalse(body.boardId)?.let{ board ->
+            projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
+                if (project.startDate == null) {
+                    throw ProjectNotStartedException()
+                }
+                if (project.endDate != null) {
+                    throw ProjectEndException()
+                }
+
+            }
+
+        }
+        TODO()
     }
 }

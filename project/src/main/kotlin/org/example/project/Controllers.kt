@@ -5,6 +5,7 @@ import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.BoardTaskStateCreateDto
 import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectUpdateDto
+import org.example.project.dtos.RelationshipsCheckDto
 import org.example.project.dtos.TaskStateCreateDto
 import org.example.project.dtos.TaskStateShortResponseDto
 import org.example.project.dtos.TaskStateUpdateDto
@@ -108,4 +109,15 @@ class BoardTaskStateController(
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
+}
+
+//Internal
+@RestController
+@RequestMapping("/internal/api/v1/posts")
+class BoardInternalController(
+    private val service: BoardService
+) {
+
+    @PostMapping("/check-relationships")
+    fun checkRelationships(@RequestBody body: RelationshipsCheckDto): Boolean = service.checkRelationships(body)
 }
