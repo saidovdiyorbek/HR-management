@@ -1,9 +1,7 @@
 package org.example.organization.dto
 
 import org.example.organization.EmployeeRole
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 
 data class EmployeeCreateRequest(
     val userId: Long,
@@ -13,7 +11,6 @@ data class EmployeeCreateRequest(
 )
 
 data class EmployeeUpdateRequest(
-    val employeeRole: EmployeeRole? = null,
     val position: String? = null,
     val department: String? = null,
     val isActive: Boolean? = null
@@ -31,5 +28,9 @@ data class EmployeeResponse(
 )
 
 data class EmployeeRoleResponse(
+    val employeeRole: EmployeeRole
+)
+
+data class EmployeeRoleUpdateRequest(
     val employeeRole: EmployeeRole
 )
