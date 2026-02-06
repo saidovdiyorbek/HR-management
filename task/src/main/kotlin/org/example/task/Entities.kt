@@ -31,9 +31,8 @@ class BaseEntity(
 @Entity
 class Task(
     var boardId: Long,
-    var projectId: Long,
     var stateId: Long,
-    var taskNumber: String,
+    @Column(unique = true) var taskNumber: String,
     var title: String,
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
