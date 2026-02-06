@@ -40,7 +40,7 @@ class Task(
     var estimatedHours: Double? = null,
     var deadline: Date? = null,
     var orderIndex: Int,
-    var tags: List<String>,
+    var tags: List<String>? = null,
     var isActive: Boolean = true,
     val completedAt: Date? = null,
 ) : BaseEntity()
