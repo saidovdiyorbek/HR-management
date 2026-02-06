@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional
 interface EmployeeService {
     fun addEmployee(organizationId: Long, body: EmployeeCreateRequest, createdByUserId: Long?)
     fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse>
-    fun getMyOrganizations(userId: Long): List<Long>
     fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest)
     fun removeEmployee(organizationId: Long, userId: Long)
 }
@@ -51,11 +50,6 @@ class EmployeeServiceImpl(
             .map { mapper.toResponse(it) }
     }
 
-    override fun getMyOrganizations(userId: Long): List<Long> {
-        return employeeRepository.findAllByUserIdAndDeletedFalse(userId)
-            .map { it.organization.id!! }
-            .distinct()
-    }
 
     @Transactional
     override fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest) {

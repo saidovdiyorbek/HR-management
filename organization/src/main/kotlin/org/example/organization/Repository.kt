@@ -59,6 +59,7 @@ interface OrganizationRepository : BaseRepository<Organization> {
     fun existsByNameIgnoreCase(name: String): Boolean
 
     fun findAllByDeletedFalse(): List<Organization>
+    fun findAllByCreatedByUserIdAndDeletedFalse(userId: Long): List<Organization>
 }
 
 

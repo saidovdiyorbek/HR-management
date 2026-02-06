@@ -20,6 +20,7 @@ interface OrganizationService {
     fun getOne(id: Long): OrganizationFullResponse
     fun update(id: Long, body: OrganizationUpdateRequest)
     fun delete(id: Long)
+    fun getMyOrganizations(userId: Long): List<Long>
 }
 
 @Service
@@ -70,5 +71,10 @@ class OrganizationServiceImpl(
     override fun delete(id: Long) {
         repository.findByIdAndDeletedFalse(id) ?: throw OrganizationNotFoundException()
         repository.trash(id)
+    }
+
+    override fun getMyOrganizations(userId: Long): List<Long> {
+        return repository.findAllByCreatedByUserIdAndDeletedFalse(userId)
+            .map { it.id!! }
     }
 }
