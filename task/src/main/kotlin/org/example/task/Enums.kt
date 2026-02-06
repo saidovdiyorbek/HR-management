@@ -7,3 +7,7 @@ enum class TaskPriority{
     URGENT,
     CRITICAL
 }
+
+enum class ErrorCode(val code: Int, val message: String) {
+    TASK_NOT_FOUND(100, "TASK_NOT_FOUND"),
+}
