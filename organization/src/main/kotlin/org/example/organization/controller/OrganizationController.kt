@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/organizations")
+@RequestMapping("/organizations")
 class OrganizationController(
     private val service: OrganizationService
 ) {
@@ -51,4 +51,8 @@ class OrganizationController(
         service.delete(id)
         return ResponseEntity.ok().build()
     }
+
+    @GetMapping("/{userId}/organizations")
+    fun getMyOrganizations(@PathVariable userId: Long): List<Long> =
+        service.getMyOrganizations(userId)
 }
