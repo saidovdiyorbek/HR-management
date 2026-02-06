@@ -47,7 +47,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/{userId}/{organizationId}")
+    @PutMapping("/{userId}/{organizationId}/role")
     fun updateEmployeeRole(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
