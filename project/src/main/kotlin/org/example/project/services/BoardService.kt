@@ -81,10 +81,10 @@ class BoardServiceImpl(
                 if(stateOrder.position !=1){
                     throw StateIsNotFirstException()
                 }
-
+                return true
             }
-
+            throw BoardNotFoundException()
         }
-        return true
+        throw ProjectNotFoundException()
     }
 }
