@@ -113,7 +113,7 @@ class BoardTaskStateController(
 
 //Internal
 @RestController
-@RequestMapping("/internal/api/v1/posts")
+@RequestMapping("/internal/api/v1/projects")
 class InternalController(
     private val boardService: BoardService,
     private val stateService: TaskStateService
