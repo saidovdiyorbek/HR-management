@@ -73,7 +73,7 @@ class TaskExceptionHandler(
 ) {
 
     @ExceptionHandler(TaskAppException::class)
-    fun handlePaymentAppException(ex: TaskAppException): ResponseEntity<BaseMessage> {
+    fun handleTaskAppException(ex: TaskAppException): ResponseEntity<BaseMessage> {
         val locale = LocaleContextHolder.getLocale()
         val message = try {
             messageSource.getMessage(ex.errorType().toString(), null, locale)

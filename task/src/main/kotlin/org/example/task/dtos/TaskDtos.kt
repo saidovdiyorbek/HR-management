@@ -11,6 +11,6 @@ data class TaskCreateRequest(
     val priority: TaskPriority? = null,
     var estimatedHours: Double? = null,
     var deadline: Date? = null,
-    var orderIndex: Int? = null,
     var tags: List<String>? = null,
+    var attachHashes: List<String>? = null,
 )

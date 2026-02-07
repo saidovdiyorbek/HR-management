@@ -1,27 +1,35 @@
 package org.example.project
 
 import org.example.project.dtos.BaseMessage
+import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.util.Locale
 
 
-@ControllerAdvice
+@RestControllerAdvice
 class ExceptionHandler(
     private val errorMessageSource: ResourceBundleMessageSource
 ) {
 
     @ExceptionHandler(ProjectAppException::class)
-    fun handleOtherExceptions(exception: Throwable): ResponseEntity<Any> {
+    fun handleOtherExceptions(exception: Throwable): ResponseEntity<BaseMessage> {
         when (exception) {
             is ProjectAppException-> {
+                val locale = LocaleContextHolder.getLocale()
+                val message = try {
+                    errorMessageSource.getMessage(exception.errorType().toString(), null, locale)
+                } catch (e: NoSuchMessageException) {
+                    exception.message ?: exception.errorType().toString().replace("_", " ").lowercase()
+                }
 
                 return ResponseEntity
                     .badRequest()
-                    .body(exception.getErrorMessage(errorMessageSource))
+                    .body(BaseMessage(exception.errorType().code, message))
             }
 
             else -> {
@@ -47,7 +55,7 @@ sealed class ProjectAppException(message: String? = null) : RuntimeException(mes
             errorType().code,
             errorMessageSource.getMessage(
                 errorType().toString(),
-                getErrorMessageArguments(),
+                getErrorMessageArguments() as Array<out Any>?,
                 Locale(LocaleContextHolder.getLocale().language)
             )
         )
