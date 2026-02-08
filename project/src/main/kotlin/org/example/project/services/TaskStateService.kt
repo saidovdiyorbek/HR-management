@@ -37,7 +37,7 @@ class TaskStateServiceImpl(
 ) : TaskStateService {
     override fun create(dto: TaskStateCreateDto) {
         val organization = organizationClient.getCurrentUserOrganization(getCurrentUserId())
-        val taskState = mapper.toEntity(dto, organization.id)
+        val taskState = mapper.toEntity(dto, organization.organizationId)
         repository.save(taskState)
     }
 
