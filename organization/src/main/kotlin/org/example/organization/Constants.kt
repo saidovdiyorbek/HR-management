@@ -1,0 +1,17 @@
+package org.example.organization
+
+import java.security.Principal
+
+const val SYSTEM_NAME = "OPEN_BANKING"
+const val BASE_API_VERSION = "/api/v1"
+const val HUMO_CHECK_CARD_OWNERSHIP_RESULT = "Yes"
+const val HUMO_CHECK_SMS_STATE = "on"
+const val USER_ID_KEY = "uid"
+const val USERNAME_KEY = "sub"
+const val ROLE_KEY = "rol"
+const val ROLE_LEVEL_KEY = "roll"
+const val DEV_ROLE = "DEV"
+const val USER_DETAILS_HEADER_KEY = "X-User-Details"
+const val ACTIVE = "ACTIVE"
+const val JWT_ROLE_KEY = "rol"
+val PRINCIPAL_KEY: String = Principal::class.java.name
