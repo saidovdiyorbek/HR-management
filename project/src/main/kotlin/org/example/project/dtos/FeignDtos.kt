@@ -3,7 +3,7 @@ package org.example.project.dtos
 import org.example.project.Permission
 
 data class CurrentUserOrganizationDto(
-    val id: Long,
+    val organizationId: Long,
 )
 
 data class RelationshipsCheckDto(
