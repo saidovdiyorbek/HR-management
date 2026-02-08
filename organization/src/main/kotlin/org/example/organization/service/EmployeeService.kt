@@ -1,12 +1,15 @@
 package org.example.organization.service
 
 import org.example.organization.EmployeeAlreadyExistsException
+import org.example.organization.EmployeeContext
+import org.example.organization.EmployeeContextRepository
 import org.example.organization.EmployeeMapper
 import org.example.organization.EmployeeNotFoundException
 import org.example.organization.EmployeeRepository
 import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
+import org.example.organization.SecurityUtil
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
@@ -27,8 +30,10 @@ interface EmployeeService {
 @Service
 class EmployeeServiceImpl(
     private val employeeRepository: EmployeeRepository,
+    private val employeeContextRepo: EmployeeContextRepository,
     private val organizationRepository: OrganizationRepository,
-    private val mapper: EmployeeMapper
+    private val mapper: EmployeeMapper,
+    private val securityUtil: SecurityUtil,
 ) : EmployeeService {
 
     @Transactional
@@ -45,6 +50,7 @@ class EmployeeServiceImpl(
 
 
         employeeRepository.save(mapper.toEntity(body, org, createdByUserId))
+        employeeContextRepo.save(EmployeeContext(securityUtil.getCurrentUserId(), org))
     }
 
     override fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse> {
