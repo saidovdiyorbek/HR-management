@@ -4,6 +4,7 @@ import org.example.organization.OrganizationAlreadyExistsException
 import org.example.organization.OrganizationMapper
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
+import org.example.organization.SecurityUtil
 import org.example.organization.dto.OrganizationAllResponse
 import org.example.organization.dto.OrganizationCreateRequest
 import org.example.organization.dto.OrganizationFullResponse
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 interface OrganizationService {
-    fun create(body: OrganizationCreateRequest, createdByUserId: Long?)
+    fun create(body: OrganizationCreateRequest)
     fun getAll(): List<OrganizationAllResponse>
     fun getAllPaginated(pageable: Pageable): Page<OrganizationAllResponse>
     fun getOne(id: Long): OrganizationFullResponse
@@ -26,16 +27,19 @@ interface OrganizationService {
 @Service
 class OrganizationServiceImpl(
     private val repository: OrganizationRepository,
-    private val mapper: OrganizationMapper
+    private val mapper: OrganizationMapper,
+    private val securityUtil: SecurityUtil,
 ) : OrganizationService {
 
     @Transactional
-    override fun create(body: OrganizationCreateRequest, createdByUserId: Long?) {
+    override fun create(body: OrganizationCreateRequest) {
+        val currentUserId = securityUtil.getCurrentUserId()
+        println(currentUserId)
         repository.findByNameIgnoreCase(body.name.trim())?.let {
             throw OrganizationAlreadyExistsException()
         }
 
-        repository.save(mapper.toEntity(body, createdByUserId))
+        repository.save(mapper.toEntity(body, currentUserId))
     }
 
     override fun getAll(): List<OrganizationAllResponse> =
@@ -74,7 +78,7 @@ class OrganizationServiceImpl(
     }
 
     override fun getMyOrganizations(userId: Long): List<Long> {
-        return repository.findAllByCreatedByUserIdAndDeletedFalse(userId)
+        return repository.findAllByCreatedByUserIdAndDeletedFalse(securityUtil.getCurrentUserId())
             .map { it.id!! }
     }
 }

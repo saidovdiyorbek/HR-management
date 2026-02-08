@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size
 import uz.zero.auth.utils.NotSpace
 
 
-data class UserCreateRequest(
+data class  UserCreateRequest(
     @field:Size(min = 3, max = 32)
     @field:NotSpace
     val username: String,
@@ -24,8 +24,4 @@ data class UserCreateRequest(
     )
     val password: String,
     @field:Size(max = 255) val fullName: String,
-    @field:Email
-    val email: String,
-    @field:Size(min = 8, max = 32, message = "BIO_SIZE_ERROR")
-    val bio: String? = null,
 )

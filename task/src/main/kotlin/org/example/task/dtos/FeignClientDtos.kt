@@ -1,5 +1,7 @@
 package org.example.task.dtos
 
+import org.example.task.Permission
+
 data class RelationshipsCheckDto(
     val boardId: Long,
     val stateId: Long,
@@ -7,4 +9,11 @@ data class RelationshipsCheckDto(
 data class InternalHashesCheckRequest(
     val userId: Long,
     val hashes: List<String>
+)
+
+data class TransferTaskCheckDto(
+    val fromStateId: Long,
+    val toStateId: Long,
+    val boardId: Long,
+    val permission: Permission,
 )

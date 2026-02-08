@@ -1,15 +1,73 @@
 package org.example.project
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import feign.Response
+import feign.codec.ErrorDecoder
 import org.example.project.dtos.BaseMessage
 import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.io.IOException
 import java.util.Locale
 
+@Component
+class CustomErrorDecoder(
+    private val objectMapper: ObjectMapper
+) : ErrorDecoder {
+
+    override fun decode(methodKey: String, response: Response): Exception {
+        return try {
+            val body = response.body()?.asInputStream()?.readBytes()?.toString(Charsets.UTF_8)
+
+            if (body.isNullOrEmpty()) {
+                return FeignClientException(
+                    errorCode = response.status(),
+                    errorMessage = "Unknown error occurred from ${extractServiceName(methodKey)}"
+                )
+            }
+
+            // BaseMessage ga parse qilish
+            val errorResponse = objectMapper.readValue(body, BaseMessage::class.java)
+
+            // FeignClientException ga o'rash
+            FeignClientException(
+                errorCode = errorResponse.code,
+                errorMessage = errorResponse.message ?: "Error from ${extractServiceName(methodKey)}"
+            )
+
+        } catch (e: IOException) {
+            FeignClientException(
+                errorCode = response.status(),
+                errorMessage = "Error parsing response from ${extractServiceName(methodKey)}: ${e.message}"
+            )
+        } catch (e: Exception) {
+            FeignClientException(
+                errorCode = response.status(),
+                errorMessage = "Unexpected error from ${extractServiceName(methodKey)}: ${e.message}"
+            )
+        }
+    }
+
+    // Methoddan service nomini ajratib olish (masalan: "UserFeignClient#getUserById(Long)")
+    private fun extractServiceName(methodKey: String): String {
+        return methodKey.substringBefore("#")
+    }
+
+}
+
+class FeignClientException(
+    val errorCode: Int?,
+    val errorMessage: String?
+) : RuntimeException(errorMessage) {
+    fun toBaseMessage(): BaseMessage {
+        return BaseMessage(code = errorCode, message = errorMessage)
+    }
+}
 
 @RestControllerAdvice
 class ExceptionHandler(
@@ -41,6 +99,13 @@ class ExceptionHandler(
                     )
             }
         }
+    }
+
+    @ExceptionHandler(FeignClientException::class)
+    fun handleFeignClientException(ex: FeignClientException): ResponseEntity<BaseMessage> {
+        return ResponseEntity
+            .badRequest()
+            .body(ex.toBaseMessage())
     }
 
 }

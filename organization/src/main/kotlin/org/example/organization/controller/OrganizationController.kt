@@ -17,13 +17,8 @@ class OrganizationController(
 ) {
 
     @PostMapping
-    fun create(
-        @RequestBody body: OrganizationCreateRequest,
-        @RequestParam(required = false) createdByUserId: Long?
-    ): ResponseEntity<Unit> {
-        service.create(body, createdByUserId)
-        return ResponseEntity.ok().build()
-    }
+    fun create(@RequestBody body: OrganizationCreateRequest) = service.create(body)
+
 
     @GetMapping
     fun getAll(): List<OrganizationAllResponse> =

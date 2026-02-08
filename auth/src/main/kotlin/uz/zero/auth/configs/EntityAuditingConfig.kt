@@ -10,6 +10,6 @@ import java.util.Optional
 class EntityAuditingConfig {
 
     @Bean
-    fun userIdAuditorAware() = AuditorAware { Optional.ofNullable(userIdNullable()) }
+    fun userIdAuditorAware() = AuditorAware { Optional.ofNullable(userIdNullable()?.toString()) }
 
 }

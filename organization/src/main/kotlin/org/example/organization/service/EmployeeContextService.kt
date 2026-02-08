@@ -37,7 +37,7 @@ class EmployeeContextServiceImpl(
         employeeRepository.findByUserIdAndOrganizationIdAndDeletedFalse(userId, org.id!!)
             ?: throw EmployeeNotInOrganizationException()
 
-        val ctx = employeeContextRepository.findByUserIdAndDeletedFalse(userId)
+        val ctx = employeeContextRepository.findEmployeeContextByUserId(userId)
 
         if (ctx == null) {
             employeeContextRepository.save(
@@ -55,7 +55,8 @@ class EmployeeContextServiceImpl(
     }
 
     override fun getCurrentOrganization(userId: Long): CurrentOrganizationResponse {
-        val ctx = employeeContextRepository.findByUserIdAndDeletedFalse(userId)
+        println(userId)
+        val ctx = employeeContextRepository.findEmployeeContextByUserId(userId)
             ?: throw EmployeeContextNotFoundException()
 
         return CurrentOrganizationResponse(

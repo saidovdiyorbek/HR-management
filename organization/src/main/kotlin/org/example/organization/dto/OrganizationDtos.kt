@@ -1,9 +1,10 @@
 package org.example.organization.dto
 
-data class BaseMessage(
-    val code: Long? = null,
-    val message: String? = null
-)
+data class BaseMessage(val code: Int?, val message: String? = null){
+    companion object{
+        var OK = BaseMessage(code = 0, message = "OK")
+    }
+}
 
 data class OrganizationCreateRequest(
     val name: String,
