@@ -17,3 +17,7 @@ enum class Role {
     ADMIN,
     DEVELOPER,
 }
+
+enum class Permission{
+    OWNER, ASSIGNED
+}
