@@ -1,11 +1,13 @@
 package org.example.project.services
 
 import org.example.project.BoardRepository
+import org.example.project.FeignClientException
 import org.example.project.OrganizationClient
 import org.example.project.Project
 import org.example.project.ProjectMapper
 import org.example.project.ProjectNotFoundException
 import org.example.project.ProjectRepository
+import org.example.project.SecurityUtil
 import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectFullResponseDto
 import org.example.project.dtos.ProjectShortResponseDto
@@ -27,12 +29,18 @@ class ProjectServiceImpl(
     private val repository: ProjectRepository,
     private val mapper: ProjectMapper,
     private val organizationClient: OrganizationClient,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val securityUtil: SecurityUtil,
 ): ProjectService {
     override fun create(dto: ProjectCreateDto) {
-        val organization =organizationClient.getCurrentUserOrganization(getCurrentUserId())
-        val project = mapper.toEntity(dto,  java.time.LocalDate.now(),organization.id )
-        repository.save(project)
+        try{
+            val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+            val project = mapper.toEntity(dto, java.time.LocalDate.now(), organization.organizationId)
+            repository.save(project)
+
+        }catch (e: FeignClientException){
+            throw e
+        }
     }
 
     override fun update(id: Long, dto: ProjectUpdateDto) {
