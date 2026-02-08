@@ -1,5 +1,6 @@
 package uz.zero.auth.controllers
 
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -13,6 +14,7 @@ import uz.zero.auth.services.UserService
 class UserController(
     private val userService: UserService
 ){
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PostMapping("/register")
     fun registerUser(@RequestBody request: UserCreateRequest) = userService.registerUser(request)
 
