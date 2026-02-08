@@ -9,15 +9,21 @@ import org.example.task.SecurityUtil
 import org.example.task.Task
 import org.example.task.TaskAttachment
 import org.example.task.TaskAttachmentRepository
+import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
 import org.example.task.dtos.TaskCreateRequest
+import org.example.task.dtos.TaskResponse
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 interface TaskService {
     fun create(dto: TaskCreateRequest)
+    fun getOne(id: Long): TaskResponse
+    fun getAll(pageable: Pageable): Page<TaskResponse>
 }
 
 @Service
@@ -75,4 +81,40 @@ class TaskServiceImpl(
         }
     }
 
+    override fun getOne(id: Long): TaskResponse {
+        repository.findByIdAndDeletedFalse(id)?.let { task ->
+            return TaskResponse(
+                id = task.id!!,
+                boardId = task.boardId,
+                stateId = task.stateId,
+                title = task.title,
+                description = task.description,
+                priority = task.priority,
+                estimatedHours = task.estimatedHours,
+                deadline = task.deadline,
+                tags = task.tags,
+                attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!)
+            )
+        }
+        throw TaskNotFoundException()
+    }
+
+    override fun getAll(pageable: Pageable): Page<TaskResponse> {
+        val findAll = repository.findAll(pageable)
+
+        return findAll.map { task ->
+            TaskResponse(
+                id = task.id!!,
+                boardId = task.boardId,
+                stateId = task.stateId,
+                title = task.title,
+                description = task.description,
+                priority = task.priority,
+                estimatedHours = task.estimatedHours,
+                deadline = task.deadline,
+                tags = task.tags,
+                attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!)
+            )
+        }
+    }
 }

@@ -51,7 +51,13 @@ interface TaskRepository : BaseRepository<Task>{
     """)
     fun getTaskLastOrderIndex(): Int?
 }
-interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{}
+interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
+    @Query("""
+        select ta.fileHash from TaskAttachment ta
+        where ta.task.id = :taskId and ta.deleted = false 
+    """)
+    fun findTaskAttachmentByTaskId(taskId: Long): List<String>
+}
 interface TaskHistoryRepository : BaseRepository<TaskHistory>{}
 interface TaskLabelRepository : BaseRepository<TaskLabel>{}
 interface TaskLabelMappingRepository : BaseRepository<TaskLabelMapping>{}
