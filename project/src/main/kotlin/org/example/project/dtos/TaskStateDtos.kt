@@ -3,6 +3,7 @@ package org.example.project.dtos
 import org.example.project.Permission
 
 data class TaskStateCreateDto(
+    val boardId: Long,
     val name: String,
     val description: String,
     val permission: Permission

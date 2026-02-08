@@ -1,9 +1,16 @@
 package org.example.project.services
 
+import org.example.project.BoardNotFoundException
+import org.example.project.BoardRepository
+import org.example.project.BoardTaskState
 import org.example.project.BoardTaskStateNotFoundException
+import org.example.project.BoardTaskStateRepository
 import org.example.project.NotPermitedToTransferTaskException
 import org.example.project.OrdersOfStatesIsIncorrectException
 import org.example.project.OrganizationClient
+import org.example.project.ProjectEndException
+import org.example.project.ProjectRepository
+import org.example.project.SecurityUtil
 import org.example.project.TaskStateMapper
 import org.example.project.TaskStateNotFoundException
 import org.example.project.TaskStateRepository
@@ -33,12 +40,29 @@ interface TaskStateService {
 class TaskStateServiceImpl(
     private val repository: TaskStateRepository,
     private val mapper: TaskStateMapper,
-    private val organizationClient: OrganizationClient
+    private val organizationClient: OrganizationClient,
+    private val securityUtil: SecurityUtil,
+    private val boardTaskStateRepo: BoardTaskStateRepository,
+    private val boardRepository: BoardRepository,
+    private val projectRepository: ProjectRepository,
 ) : TaskStateService {
     override fun create(dto: TaskStateCreateDto) {
-        val organization = organizationClient.getCurrentUserOrganization(getCurrentUserId())
-        val taskState = mapper.toEntity(dto, organization.organizationId)
-        repository.save(taskState)
+        boardRepository.findByIdAndDeletedFalse(dto.boardId)?.let { board ->
+            println("Board topildi")
+            projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
+                println("Project topildi")
+                if (!project.isActive && project.endDate != null ) {
+                    throw ProjectEndException()
+                }
+                val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+                val taskState = mapper.toEntity(dto, organization.organizationId)
+                repository.save(taskState)
+                boardTaskStateRepo.save(BoardTaskState(board, taskState, 1))
+                return
+            }
+            throw ProjectEndException()
+        }
+        throw BoardNotFoundException()
     }
 
     override fun update(id: Long, dto: TaskStateUpdateDto) {
