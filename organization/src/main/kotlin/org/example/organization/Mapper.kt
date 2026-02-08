@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Component
 class OrganizationMapper {
 
-    fun toEntity(body: OrganizationCreateRequest, createdByUserId: Long?): Organization =
+    fun toEntity(body: OrganizationCreateRequest, createdByUserId: Long): Organization =
         Organization(
             name = body.name.trim(),
             description = body.description,
