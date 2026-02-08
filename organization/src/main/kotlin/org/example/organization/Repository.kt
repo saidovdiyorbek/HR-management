@@ -84,7 +84,7 @@ interface EmployeeRepository : BaseRepository<Employee> {
 @Repository
 interface EmployeeContextRepository : BaseRepository<EmployeeContext> {
 
-    fun findByUserIdAndDeletedFalse(userId: Long): EmployeeContext?
+    fun findEmployeeContextByUserId(userId: Long): EmployeeContext?
 
     fun existsByUserIdAndDeletedFalse(userId: Long): Boolean
 }
