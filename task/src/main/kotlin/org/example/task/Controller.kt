@@ -33,4 +33,10 @@ class TaskController(
 
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody dto: TaskUpdateRequest) = service.update(id, dto)
+
+    @PutMapping("/assign/{id}")
+    fun assignEmployee(@PathVariable id: Long, @RequestBody employees: List<Long>) = service.assignEmployee(id, employees)
+
+    @PutMapping("/unsign/{id}")
+    fun unsignEmployee(@PathVariable id: Long, @RequestBody employees: List<Long>) = service.unsignEmployee(id, employees)
 }
