@@ -73,7 +73,7 @@ class BoardController(
 }
 
 @RestController
-@RequestMapping("/task-states")
+@RequestMapping("/projects/task-states")
 class TaskStateController(
     private val service: TaskStateService
 ) {
