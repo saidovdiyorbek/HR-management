@@ -10,6 +10,7 @@ enum class TaskPriority{
 
 enum class ErrorCode(val code: Int, val message: String) {
     TASK_NOT_FOUND(100, "TASK_NOT_FOUND"),
+    THIS_TASK_NOT_YOURS(102, "THIS_TASK_NOT_YOURS"),
 }
 
 enum class Role {
@@ -20,4 +21,9 @@ enum class Role {
 
 enum class Permission{
     OWNER, ASSIGNED
+}
+
+enum class EmployeeRole {
+    CEO,
+    EMPLOYEE
 }
