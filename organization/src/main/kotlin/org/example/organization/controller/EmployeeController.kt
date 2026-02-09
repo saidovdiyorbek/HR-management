@@ -69,8 +69,5 @@ class EmployeeInternalController(
     @PostMapping("/check-users-in-organization")
     fun checkUsersInOrganization(
         @RequestBody dto: CheckUsersInOrganizationRequest
-    ): CheckUsersInOrganizationResponse =
-        CheckUsersInOrganizationResponse(
-            result = service.areAllUsersInOrganization(dto.organizationId, dto.userIds)
-        )
+    ): Boolean = service.areAllUsersInOrganization(dto.organizationId, dto.userIds)
 }
