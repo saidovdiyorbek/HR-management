@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
@@ -57,7 +58,56 @@ interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
         where ta.task.id = :taskId and ta.deleted = false 
     """)
     fun findTaskAttachmentByTaskId(taskId: Long): List<String>
+
+    @Modifying
+    @Query("""update Task t set t.orderIndex = ?2
+        where t.id = ?1
+    """)
+    fun updateTaskOrderIndex(taskId: Long, orderIndex: Int)
+
+    @Modifying
+    @Query("""update Task t set t.orderIndex = t.orderIndex + 1
+        where t.orderIndex >= :orderIndex and t.orderIndex < :oldIndex 
+    """)
+    fun updateTaskOrderIndexesIncrement(orderIndex: Int, oldIndex: Int)
+
+    @Modifying
+    @Query("""update Task t set t.orderIndex = t.orderIndex - 1
+        where t.orderIndex < :newIndex and t.orderIndex > :oldIndex 
+    """)
+    fun updateTaskOrderIndexesDecrement(newIndex: Int,  oldInex: Int)
+
+    @Query("""select ta.fileHash  from TaskAttachment ta 
+        where ta.task.id = : id and ta.deleted = false
+    """)
+    fun getPostAttachHash(id: Long): List<String>
+
+    @Modifying
+    @Query("""
+        delete from TaskAttachment ta
+        where ta.fileHash in ?1
+    """)
+    fun removeByFileHashList(hashesToRemove: List<String>)
+
+
 }
 interface TaskHistoryRepository : BaseRepository<TaskHistory>{}
 interface TaskLabelRepository : BaseRepository<TaskLabel>{}
 interface TaskLabelMappingRepository : BaseRepository<TaskLabelMapping>{}
+interface TaskAssignedEmployeeRepository : BaseRepository<TaskAssignedEmployee>{
+
+    fun existsTaskAssignedEmployeeByTaskId(taskId: Long): Boolean
+
+    @Query("""
+        select ta.employeeId from TaskAssignedEmployee ta
+        where ta.task.id = :taskId and ta.deleted = false
+    """)
+    fun findTaskAssignedEmployeeByTaskId(taskId: Long): List<Long>
+
+    @Modifying
+    @Query("""
+        update TaskAssignedEmployee t set t.deleted = true
+        where t.employeeId in (:employeeIds)
+    """)
+    fun deleteTaskAssignedEmployeeByEmployeeIds(employeeIds: List<Long>)
+}

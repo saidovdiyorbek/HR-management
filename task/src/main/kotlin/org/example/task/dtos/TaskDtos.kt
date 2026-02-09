@@ -22,6 +22,22 @@ data class TaskCreateRequest(
     var deadline: Date? = null,
     var tags: List<String>? = null,
     var attachHashes: List<String>? = null,
+    var assigningEmployeesId: List<Long>? = null,
+)
+
+data class TaskUpdateRequest(
+    @field:Size(min = 1)
+    val stateId: Long? = null,
+    @field:NotBlank
+    @field:Size(max = 255)
+    val title: String? = null,
+    val description: String? = null,
+    @field:ValidEnum(enumClass = Role::class, message = "Role not found")
+    val priority: TaskPriority? = null,
+    var estimatedHours: Double? = null,
+    var deadline: Date? = null,
+    var tags: List<String>? = null,
+    var attachHashes: List<String>? = null,
 )
 
 data class TaskResponse(

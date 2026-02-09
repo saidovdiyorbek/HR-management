@@ -121,4 +121,7 @@ sealed class TaskAppException(message: String? = null) : RuntimeException() {
 class TaskNotFoundException() : TaskAppException() {
     override fun errorType() = ErrorCode.TASK_NOT_FOUND
 }
+class ThisTaskIsNotYoursExceptions() : TaskAppException() {
+    override fun errorType() = ErrorCode.THIS_TASK_NOT_YOURS
+}
 
