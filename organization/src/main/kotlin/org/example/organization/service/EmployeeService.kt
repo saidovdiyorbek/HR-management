@@ -114,6 +114,10 @@ class EmployeeServiceImpl(
         userIds: List<Long>
     ): Boolean {
         val count = employeeRepository.countEmployeesInOrganization(organizationId, userIds)
-        return count == userIds.size.toLong()
+        if (count != userIds.size.toLong()) {
+            throw EmployeeNotFoundException()
+        }
+
+        return true
     }
 }
