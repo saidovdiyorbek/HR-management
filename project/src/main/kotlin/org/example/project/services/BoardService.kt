@@ -3,6 +3,9 @@ package org.example.project.services
 import org.example.project.BoardMapper
 import org.example.project.BoardNotFoundException
 import org.example.project.BoardRepository
+import org.example.project.BoardTaskState
+import org.example.project.BoardTaskStateRepository
+import org.example.project.InvalidStatePositionException
 import org.example.project.ProjectEndException
 import org.example.project.ProjectIsNotActiveException
 import org.example.project.ProjectNotFoundException
@@ -11,14 +14,19 @@ import org.example.project.SecurityUtil
 import org.example.project.StateIsNotFirstException
 import org.example.project.StateNotConnnectedToBoardException
 import org.example.project.TaskStateRepository
+import org.example.project.TaskStateNotFoundException
+import org.example.project.TaskStateTemplateItemRepository
+import org.example.project.TemplateNotFoundException
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardFullResponseDto
 import org.example.project.dtos.BoardShortResponseDto
+import org.example.project.dtos.BoardTaskStateDefinitionDto
 import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.RelationshipsCheckDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 interface BoardService {
     fun create(dto: BoardCreateDto)
@@ -36,12 +44,47 @@ class BoardServiceImpl(
     private val taskStateRepository: TaskStateRepository,
     private val projectRepository: ProjectRepository,
     private val securityUtil: SecurityUtil,
+    private val boardTaskStateRepository: BoardTaskStateRepository,
+    private val templateItemRepository: TaskStateTemplateItemRepository
 ) : BoardService {
+    @Transactional
     override fun create(dto: BoardCreateDto) {
         val project = projectRepository.findByIdAndDeletedFalse(dto.projectId)
             ?: throw ProjectNotFoundException()
+        if(project.endDate != null) {
+            throw ProjectEndException()
+        }
         val board = mapper.toEntity(dto, project)
         repository.save(board)
+        
+        val statesToLink = mutableListOf<BoardTaskStateDefinitionDto>()
+        dto.states?.let { statesToLink.addAll(it) }
+
+        dto.templateId?.let { tid ->
+            val items = templateItemRepository.findAllByTemplateIdAndDeletedFalse(tid)
+
+            statesToLink.addAll(items.map {
+                BoardTaskStateDefinitionDto(it.taskState.id!!, it.position)
+            })
+        }?: throw TemplateNotFoundException()
+
+        if (statesToLink.isNotEmpty()) {
+            val positions = statesToLink.map { it.position }.sorted()
+            if (positions.first() != 1) throw InvalidStatePositionException()
+            for (i in 0 until positions.size - 1) {
+                if (positions[i+1] != positions[i] + 1) {
+                    throw InvalidStatePositionException()
+                }
+            }
+        }
+
+        statesToLink.forEach { stateDef ->
+            val taskState = taskStateRepository.findByIdAndDeletedFalse(stateDef.stateId)
+                ?: throw TaskStateNotFoundException()
+             
+            val boardTaskState = BoardTaskState(board, taskState, stateDef.position)
+            boardTaskStateRepository.save(boardTaskState)
+        }
     }
 
     override fun update(id: Long, dto: BoardUpdateDto) {
@@ -72,7 +115,7 @@ class BoardServiceImpl(
                 if (project.endDate != null) {
                     throw ProjectEndException()
                 }
-                if(project.isActive==false){
+                if(!project.isActive){
                     throw ProjectIsNotActiveException()
                 }
                 val stateOrder =taskStateRepository.findTaskStateWithPosition(body.stateId, body.boardId)

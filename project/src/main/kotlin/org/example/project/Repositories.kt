@@ -54,6 +54,7 @@ class BaseRepositoryImpl<T : BaseEntity>(
 
 @Repository
 interface ProjectRepository : BaseRepository<Project> {
+    fun findAllByOrganizationIdAndDeletedFalse(organizationId: Long, pageable: Pageable) : Page<Project>
 }
 
 @Repository
@@ -89,4 +90,18 @@ interface TaskStateRepository : BaseRepository<TaskState> {
 @Repository
 interface BoardTaskStateRepository : BaseRepository<BoardTaskState> {
     fun findByBoardIdAndDeletedFalse(boardId: Long): List<BoardTaskState>
+    
+    @Query("SELECT MAX(bts.position) FROM BoardTaskState bts WHERE bts.board.id = :boardId AND bts.deleted = false")
+    fun findMaxPosition(boardId: Long): Int?
+}
+
+@Repository
+interface TaskStateTemplateRepository : BaseRepository<TaskStateTemplate> {
+    fun findAllByOrganizationIdAndDeletedFalse(organizationId: Long): List<TaskStateTemplate>
+    fun existsByNameAndDeletedFalse(name: String): Boolean
+}
+
+@Repository
+interface TaskStateTemplateItemRepository : BaseRepository<TaskStateTemplateItem> {
+    fun findAllByTemplateIdAndDeletedFalse(templateId: Long): List<TaskStateTemplateItem>
 }

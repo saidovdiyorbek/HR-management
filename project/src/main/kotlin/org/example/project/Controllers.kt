@@ -7,6 +7,7 @@ import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectUpdateDto
 import org.example.project.dtos.RelationshipsCheckDto
 import org.example.project.dtos.TaskStateCreateDto
+import org.example.project.dtos.TaskStateTemplateCreateDto
 import org.example.project.dtos.TaskStateUpdateDto
 import org.example.project.dtos.TransferTaskCheckDto
 import org.example.project.services.BoardService
@@ -38,12 +39,16 @@ class ProjectControllers(
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
 
+    @PutMapping("/{id}/close")
+    fun close(@PathVariable id: Long) = service.close(id)
+
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = service.getById(id)
 
     @GetMapping
     fun getAll(pageable: Pageable) = service.getAll(pageable)
 }
+
 
 @RestController
 @RequestMapping("/boards")
@@ -68,7 +73,7 @@ class BoardController(
 }
 
 @RestController
-@RequestMapping("/task-states")
+@RequestMapping("/projects/task-states")
 class TaskStateController(
     private val service: TaskStateService
 ) {
@@ -96,6 +101,13 @@ class TaskStateController(
 
     @GetMapping("/{stateId}/board/{boardId}")
     fun getTaskStateWithPosition(@PathVariable stateId: Long, @PathVariable boardId: Long) = service.getTaskStateWithPosition(stateId, boardId)
+    
+    // Templates
+    @PostMapping("/templates")
+    fun createTemplate(@RequestBody dto: TaskStateTemplateCreateDto) = service.createTemplate(dto)
+
+    @GetMapping("/templates")
+    fun getTemplates() = service.getTemplates()
 }
 
 @RestController
@@ -111,7 +123,7 @@ class BoardTaskStateController(
     fun delete(@PathVariable id: Long) = service.delete(id)
 }
 
-//Internal
+
 @RestController
 @RequestMapping("/internal/api/v1/projects")
 class InternalController(

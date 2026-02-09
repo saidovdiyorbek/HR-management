@@ -40,9 +40,9 @@ class Project(
     @Column(nullable = false) var name: String,
     @Column(columnDefinition = "TEXT") var description: String?,
     @Column(nullable = false, name = "organization_id") var organizationId: Long,
-    @Column(nullable = false, name = "is_active") val isActive: Boolean=true,
+    @Column(nullable = false, name = "is_active") var isActive: Boolean=true,
     @Column(name = "start_date") val startDate: LocalDate,
-    @Column(name = "end_date") val endDate: LocalDate?
+    @Column(name = "end_date") var endDate: LocalDate?
 ) : BaseEntity()
 
 
@@ -72,3 +72,17 @@ class BoardTaskState(
     @Column(nullable = false) var position: Int
 ):BaseEntity()
 
+@Entity
+@Table(name = "task_state_template")
+class TaskStateTemplate(
+    @Column(nullable = false) var name: String,
+    @Column(nullable = false, name = "organization_id") val organizationId: Long
+): BaseEntity()
+
+@Entity
+@Table(name = "task_state_template_item")
+class TaskStateTemplateItem(
+    @ManyToOne val template: TaskStateTemplate,
+    @ManyToOne val taskState: TaskState,
+    @Column(nullable = false) var position: Int
+): BaseEntity()
