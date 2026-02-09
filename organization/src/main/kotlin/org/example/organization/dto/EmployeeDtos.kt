@@ -34,3 +34,8 @@ data class EmployeeRoleResponse(
 data class EmployeeRoleUpdateRequest(
     val employeeRole: EmployeeRole
 )
+
+data class RequestEmployeeRole(
+    val userId: Long,
+    val organizationId: Long
+)
