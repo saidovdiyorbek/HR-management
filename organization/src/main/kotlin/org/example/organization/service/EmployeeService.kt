@@ -15,6 +15,7 @@ import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
 import org.example.organization.dto.EmployeeRoleUpdateRequest
 import org.example.organization.dto.EmployeeUpdateRequest
+import org.example.organization.dto.RequestEmployeeRole
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,8 +24,9 @@ interface EmployeeService {
     fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse>
     fun updateEmployee(organizationId: Long, userId: Long, body: EmployeeUpdateRequest)
     fun removeEmployee(organizationId: Long, userId: Long)
-    fun getEmployeeRoleByUserId(userId: Long): EmployeeRoleResponse
+    fun getEmployeeRole(body: RequestEmployeeRole): EmployeeRoleResponse
     fun updateEmployeeRole(organizationId: Long, userId: Long, body: EmployeeRoleUpdateRequest)
+    fun areAllUsersInOrganization(organizationId: Long, userIds: List<Long>): Boolean
 }
 
 @Service
@@ -85,11 +87,10 @@ class EmployeeServiceImpl(
         employeeRepository.trash(employee.id!!)
     }
 
-    override fun getEmployeeRoleByUserId(userId: Long): EmployeeRoleResponse {
-        employeeRepository.findByIdAndDeletedFalse(userId)?.let { employee ->
-            return EmployeeRoleResponse(employee.employeeRole)
-        }
-      throw EmployeeNotFoundException()
+    override fun getEmployeeRole(body: RequestEmployeeRole): EmployeeRoleResponse {
+         val employee =employeeRepository.findByUserIdAndOrganizationIdAndDeletedFalse(body.userId, body.organizationId)
+        ?:throw EmployeeNotFoundException()
+        return EmployeeRoleResponse(employee.employeeRole)
     }
 
     override fun updateEmployeeRole(
@@ -106,5 +107,13 @@ class EmployeeServiceImpl(
 
         employee.employeeRole = body.employeeRole
         employeeRepository.save(employee)
+    }
+
+    override fun areAllUsersInOrganization(
+        organizationId: Long,
+        userIds: List<Long>
+    ): Boolean {
+        val count = employeeRepository.countEmployeesInOrganization(organizationId, userIds)
+        return count == userIds.size.toLong()
     }
 }
