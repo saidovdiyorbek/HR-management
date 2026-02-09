@@ -1,10 +1,15 @@
 package org.example.task
 
+import org.example.task.dtos.CheckUsersInOrganizationRequest
+import org.example.task.dtos.CurrentOrganizationResponse
+import org.example.task.dtos.EmployeeRoleResponse
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
 import org.example.task.dtos.TransferTaskCheckDto
 import org.springframework.cloud.openfeign.FeignClient
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 
@@ -21,4 +26,27 @@ interface ProjectClient{
 interface AttachClient{
     @PostMapping("/hashes/exists")
     fun listExists(@RequestBody hashes: InternalHashesCheckRequest): Boolean
+
+    @DeleteMapping("/deleteList")
+    fun deleteList(@RequestBody hashes: List<String>)
+}
+
+@FeignClient(name = "organization-service", url = "\${services.hosts.organization}/internal/api/v1/employees", configuration = [FeignOAuth2TokenConfig::class])
+interface OrganizationClient{
+
+    @GetMapping("/get-employee-role/{userId}")
+    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse
+
+    @GetMapping("/get-current-organization/{userId}")
+    fun getCurrentOrganizationByUserId(
+        @PathVariable userId: Long
+    ): CurrentOrganizationResponse
+}
+
+@FeignClient(name = "employee-service", url = "\${services.hosts.organization}/internal/api/v1/employees", configuration = [FeignOAuth2TokenConfig::class])
+interface EmployeeClient{
+    @PostMapping("/check-users-in-organization")
+    fun checkUsersInOrganization(
+        @RequestBody dto: CheckUsersInOrganizationRequest
+    ): Boolean
 }
