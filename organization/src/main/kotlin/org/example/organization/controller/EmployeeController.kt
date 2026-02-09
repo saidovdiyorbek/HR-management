@@ -1,5 +1,7 @@
 package org.example.organization.controller
 
+import org.example.organization.dto.CheckUsersInOrganizationRequest
+import org.example.organization.dto.CheckUsersInOrganizationResponse
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
@@ -63,4 +65,12 @@ class EmployeeInternalController(
 ) {
     @GetMapping("/get-employee-role/{userId}")
     fun getEmployeeRole( @RequestBody dto: RequestEmployeeRole): EmployeeRoleResponse = service.getEmployeeRole(dto)
+
+    @PostMapping("/check-users-in-organization")
+    fun checkUsersInOrganization(
+        @RequestBody dto: CheckUsersInOrganizationRequest
+    ): CheckUsersInOrganizationResponse =
+        CheckUsersInOrganizationResponse(
+            result = service.areAllUsersInOrganization(dto.organizationId, dto.userIds)
+        )
 }

@@ -79,6 +79,19 @@ interface EmployeeRepository : BaseRepository<Employee> {
         organizationId: Long,
         employeeRole: EmployeeRole
     ): Employee?
+
+    @Query("""
+    SELECT COUNT(e) 
+    FROM Employee e
+    WHERE e.organization.id = :organizationId
+      AND e.userId IN :userIds
+      AND e.deleted = false
+""")
+    fun countEmployeesInOrganization(
+        organizationId: Long,
+        userIds: List<Long>
+    ): Long
+
 }
 
 
