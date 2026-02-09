@@ -1,6 +1,7 @@
 package org.example.project.services
 
 import org.example.project.BoardRepository
+import org.example.project.EmployeeClient
 import org.example.project.EmployeeRole
 import org.example.project.FeignClientException
 import org.example.project.OrganizationClient
@@ -14,6 +15,7 @@ import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectFullResponseDto
 import org.example.project.dtos.ProjectShortResponseDto
 import org.example.project.dtos.ProjectUpdateDto
+import org.example.project.dtos.RequestEmployeeRole
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -34,12 +36,13 @@ class ProjectServiceImpl(
     private val mapper: ProjectMapper,
     private val organizationClient: OrganizationClient,
     private val boardRepository: BoardRepository,
+    private val employeeClient: EmployeeClient,
     private val securityUtil: SecurityUtil,
 ): ProjectService {
     override fun create(dto: ProjectCreateDto) {
         try{
             val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
-            val employeeRole=organizationClient.getEmployeeRoleByUserId(securityUtil.getCurrentUserId())
+            val employeeRole=employeeClient.getEmployeeRoleByUserId(securityUtil.getCurrentUserId(),RequestEmployeeRole(securityUtil.getCurrentUserId(), organization.organizationId))
             if(employeeRole.employeeRole != EmployeeRole.CEO){
                 throw UserNotAllowedToCreateProjectException()
             }
