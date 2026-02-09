@@ -50,9 +50,13 @@ class EmployeeServiceImpl(
             throw EmployeeAlreadyExistsException()
         }
 
+        val contextEmployee = employeeRepository.save(mapper.toEntity(body, org, createdByUserId))
 
-        employeeRepository.save(mapper.toEntity(body, org, createdByUserId))
-        employeeContextRepo.save(EmployeeContext(securityUtil.getCurrentUserId(), org))
+        employeeContextRepo.existsEmployeeContextByUserId(body.userId).takeIf { it }?.let {
+            return
+        }
+
+        employeeContextRepo.save(EmployeeContext(contextEmployee.userId, org))
     }
 
     override fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse> {
