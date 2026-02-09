@@ -32,6 +32,7 @@ class BaseEntity(
 class Task(
     var boardId: Long,
     var stateId: Long,
+    var createUserId: Long,
     @Column(unique = true) var taskNumber: String,
     var title: String,
     @Column(columnDefinition = "TEXT")
@@ -77,4 +78,12 @@ class TaskLabelMapping(
     val task: Task,
     @ManyToOne
     val label: TaskLabel,
+) : BaseEntity()
+
+@Entity
+class TaskAssignedEmployee(
+    @ManyToOne
+    val task: Task,
+    val employeeId: Long,
+    val assignedBy: Long,
 ) : BaseEntity()
