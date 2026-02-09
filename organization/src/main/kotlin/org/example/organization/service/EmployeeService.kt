@@ -26,6 +26,7 @@ interface EmployeeService {
     fun removeEmployee(organizationId: Long, userId: Long)
     fun getEmployeeRole(body: RequestEmployeeRole): EmployeeRoleResponse
     fun updateEmployeeRole(organizationId: Long, userId: Long, body: EmployeeRoleUpdateRequest)
+    fun areAllUsersInOrganization(organizationId: Long, userIds: List<Long>): Boolean
 }
 
 @Service
@@ -106,5 +107,13 @@ class EmployeeServiceImpl(
 
         employee.employeeRole = body.employeeRole
         employeeRepository.save(employee)
+    }
+
+    override fun areAllUsersInOrganization(
+        organizationId: Long,
+        userIds: List<Long>
+    ): Boolean {
+        val count = employeeRepository.countEmployeesInOrganization(organizationId, userIds)
+        return count == userIds.size.toLong()
     }
 }
