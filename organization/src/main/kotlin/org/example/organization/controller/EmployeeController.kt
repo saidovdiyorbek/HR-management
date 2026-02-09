@@ -5,6 +5,7 @@ import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
 import org.example.organization.dto.EmployeeRoleUpdateRequest
 import org.example.organization.dto.EmployeeUpdateRequest
+import org.example.organization.dto.RequestEmployeeRole
 import org.example.organization.service.EmployeeService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -61,6 +62,5 @@ class EmployeeInternalController(
     private val service: EmployeeService
 ) {
     @GetMapping("/get-employee-role/{userId}")
-    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse = service.getEmployeeRoleByUserId(userId)
-
+    fun getEmployeeRole( @RequestBody dto: RequestEmployeeRole): EmployeeRoleResponse = service.getEmployeeRole(dto)
 }
