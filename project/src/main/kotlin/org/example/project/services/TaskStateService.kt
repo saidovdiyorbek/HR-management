@@ -5,24 +5,36 @@ import org.example.project.BoardRepository
 import org.example.project.BoardTaskState
 import org.example.project.BoardTaskStateNotFoundException
 import org.example.project.BoardTaskStateRepository
+import org.example.project.InvalidStatePositionException
 import org.example.project.NotPermitedToTransferTaskException
 import org.example.project.OrdersOfStatesIsIncorrectException
 import org.example.project.OrganizationClient
+import org.example.project.Permission
 import org.example.project.ProjectEndException
 import org.example.project.ProjectRepository
 import org.example.project.SecurityUtil
+import org.example.project.TaskState
 import org.example.project.TaskStateMapper
 import org.example.project.TaskStateNotFoundException
 import org.example.project.TaskStateRepository
+import org.example.project.TaskStateTemplate
+import org.example.project.TaskStateTemplateItem
+import org.example.project.TaskStateTemplateItemRepository
+import org.example.project.TaskStateTemplateRepository
+import org.example.project.TemplateNameExistsException
 import org.example.project.dtos.TaskStateCreateDto
 import org.example.project.dtos.TaskStateFullResponseDto
 import org.example.project.dtos.TaskStateShortResponseDto
+import org.example.project.dtos.TaskStateTemplateCreateDto
+import org.example.project.dtos.TaskStateTemplateItemResponseDto
+import org.example.project.dtos.TaskStateTemplateResponseDto
 import org.example.project.dtos.TaskStateUpdateDto
 import org.example.project.dtos.TaskStateWithPositionDto
 import org.example.project.dtos.TransferTaskCheckDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 interface TaskStateService {
     fun create(dto: TaskStateCreateDto)
@@ -34,6 +46,10 @@ interface TaskStateService {
     fun getTaskStateWithPosition(stateId: Long, boardId: Long): TaskStateWithPositionDto
     fun getAllByBoard(boardId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
     fun transferTaskCheck(dto: TransferTaskCheckDto): Boolean
+    
+    fun createTemplate(dto: TaskStateTemplateCreateDto)
+    fun getTemplates(): List<TaskStateTemplateResponseDto>
+    fun createDefaultStates(organizationId: Long): List<TaskState>
 }
 
 @Service
@@ -45,24 +61,28 @@ class TaskStateServiceImpl(
     private val boardTaskStateRepo: BoardTaskStateRepository,
     private val boardRepository: BoardRepository,
     private val projectRepository: ProjectRepository,
+    private val templateRepository: TaskStateTemplateRepository,
+    private val templateItemRepository: TaskStateTemplateItemRepository
 ) : TaskStateService {
     override fun create(dto: TaskStateCreateDto) {
-        boardRepository.findByIdAndDeletedFalse(dto.boardId)?.let { board ->
-            println("Board topildi")
-            projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
-                println("Project topildi")
-                if (!project.isActive && project.endDate != null ) {
-                    throw ProjectEndException()
-                }
-                val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
-                val taskState = mapper.toEntity(dto, organization.organizationId)
-                repository.save(taskState)
-                boardTaskStateRepo.save(BoardTaskState(board, taskState, 1))
-                return
+        val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+        val taskState = mapper.toEntity(dto, organization.organizationId)
+        repository.save(taskState)
+        
+        dto.boardId?.let { boardId -> 
+            val board = boardRepository.findByIdAndDeletedFalse(boardId)
+                ?: throw BoardNotFoundException()
+             
+            val project = projectRepository.findByIdAndDeletedFalse(board.project.id!!)
+                ?: throw ProjectEndException() 
+
+            if (project.endDate != null && !project.isActive) {
+                 throw ProjectEndException()
             }
-            throw ProjectEndException()
+            
+            val maxPos = boardTaskStateRepo.findMaxPosition(boardId) ?: 0
+            boardTaskStateRepo.save(BoardTaskState(board, taskState, maxPos + 1))
         }
-        throw BoardNotFoundException()
     }
 
     override fun update(id: Long, dto: TaskStateUpdateDto) {
@@ -126,9 +146,63 @@ class TaskStateServiceImpl(
 
         return true
     }
+    
+    @Transactional
+    override fun createTemplate(dto: TaskStateTemplateCreateDto) {
+        val organizationId = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId()).organizationId
 
+        if (dto.states.isEmpty()) return
 
-    private fun getCurrentUserId(): Long {
-        TODO("get user id from security context it implements later")
+        val positions = dto.states.map { it.position }.sorted()
+        if (positions.first() != 1) throw InvalidStatePositionException()
+        for (i in 0 until positions.size - 1) {
+            if (positions[i+1] != positions[i] + 1) {
+                throw InvalidStatePositionException()
+            }
+        }
+
+        if(templateRepository.existsByNameAndDeletedFalse(dto.name)) throw TemplateNameExistsException()
+
+        val template = TaskStateTemplate(dto.name, organizationId)
+        templateRepository.save(template)
+        
+        dto.states.forEach { itemDto ->
+            val state = repository.findByIdAndDeletedFalse(itemDto.taskStateId) 
+                ?: throw TaskStateNotFoundException()
+            val item = TaskStateTemplateItem(template, state, itemDto.position)
+            templateItemRepository.save(item)
+        }
     }
+
+    override fun getTemplates(): List<TaskStateTemplateResponseDto> {
+        val organizationId = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId()).organizationId
+        return templateRepository.findAllByOrganizationIdAndDeletedFalse(organizationId).map { template ->
+            val items = templateItemRepository.findAllByTemplateIdAndDeletedFalse(template.id!!)
+            TaskStateTemplateResponseDto(
+                id = template.id!!,
+                name = template.name,
+                states = items.map { item ->
+                    TaskStateTemplateItemResponseDto(
+                        id = item.id!!,
+                        taskState = mapper.toShortDto(item.taskState),
+                        position = item.position
+                    )
+                }
+            )
+        }
+    }
+
+    @Transactional
+    override fun createDefaultStates(organizationId: Long): List<TaskState> {
+        val existing = repository.findByOrganizationIdAndDeletedFalse(organizationId, Pageable.unpaged())
+        if (!existing.isEmpty) return existing.content
+        
+        val defaults = listOf(
+            TaskState("To Do", "Default To Do State", Permission.ASSIGNED, organizationId),
+            TaskState("In Progress", "Default In Progress State", Permission.ASSIGNED, organizationId),
+            TaskState("Done", "Default Done State", Permission.ASSIGNED, organizationId)
+        )
+        return repository.saveAll(defaults)
+    }
+
 }

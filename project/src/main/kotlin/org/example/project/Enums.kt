@@ -4,6 +4,11 @@ enum class Permission{
     OWNER, ASSIGNED
 }
 
+enum class EmployeeRole {
+    CEO,
+    EMPLOYEE
+}
+
 
 enum class ErrorCode(val code: Int) {
     PROJECT_NOT_FOUND(400),
@@ -16,6 +21,10 @@ enum class ErrorCode(val code: Int) {
     STATE_NOT_CONNNECTED_TO_BOARD(407),
     NOT_PERMITED_TO_TRANSFER_TASK(408),
     ORDERS_OF_STATES_IS_INCORRECT(409),
+    INVALID_STATE_POSITION(410),
+    TEMPLATE_NAME_EXITS_EXEPTION(411),
+    TEMPLATE_NOT_FOUND(412),
+    USER_NOT_ALLOWED_TO_CREATE_PROJECT(413)
 }
 
 enum class Role {

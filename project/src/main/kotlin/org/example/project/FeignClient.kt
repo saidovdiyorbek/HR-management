@@ -1,6 +1,7 @@
 package org.example.project
 
 import org.example.project.dtos.CurrentUserOrganizationDto
+import org.example.project.dtos.EmployeeRoleResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -9,5 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable
 interface OrganizationClient {
     @GetMapping("/get-current-organization/{userId}")
     fun getCurrentUserOrganization(@PathVariable userId:Long): CurrentUserOrganizationDto
+
+    @GetMapping("/get-employee-role/{userId}")
+    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse
 }
+
+
 

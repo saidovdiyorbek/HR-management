@@ -5,7 +5,9 @@ import java.time.LocalDateTime
 data class BoardCreateDto(
     val name: String,
     val description: String,
-    val projectId: Long
+    val projectId: Long,
+    val states: List<BoardTaskStateDefinitionDto>?,
+    val templateId: Long?
 )
 
 data class BoardUpdateDto(
@@ -25,4 +27,9 @@ data class BoardFullResponseDto(
     val taskStates: List<TaskStateShortResponseDto>,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
+)
+
+data class BoardTaskStateDefinitionDto(
+    val stateId: Long,
+    val position: Int
 )

@@ -77,7 +77,7 @@ class ExceptionHandler(
     @ExceptionHandler(ProjectAppException::class)
     fun handleOtherExceptions(exception: Throwable): ResponseEntity<BaseMessage> {
         when (exception) {
-            is ProjectAppException-> {
+            is ProjectAppException -> {
                 val locale = LocaleContextHolder.getLocale()
                 val message = try {
                     errorMessageSource.getMessage(exception.errorType().toString(), null, locale)
@@ -94,8 +94,10 @@ class ExceptionHandler(
                 exception.printStackTrace()
                 return ResponseEntity
                     .badRequest().body(
-                        BaseMessage(100,
-                            "Iltimos support bilan bog'laning")
+                        BaseMessage(
+                            100,
+                            "Iltimos support bilan bog'laning"
+                        )
                     )
             }
         }
@@ -109,7 +111,6 @@ class ExceptionHandler(
     }
 
 }
-
 
 
 sealed class ProjectAppException(message: String? = null) : RuntimeException(message) {
@@ -146,22 +147,43 @@ class BoardTaskStateNotFoundException() : ProjectAppException() {
 class ProjectIsNotActiveException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.PROJECT_IS_NOT_ACTIVE
 }
+
 class ProjectEndException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.PROJECT_ENDED
 }
 
-class StateIsNotFirstException(): ProjectAppException(){
+class StateIsNotFirstException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.STATE_IS_NOT_FIRST
 }
 
-class StateNotConnnectedToBoardException(): ProjectAppException(){
+class StateNotConnnectedToBoardException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.STATE_NOT_CONNNECTED_TO_BOARD
 }
-class NotPermitedToTransferTaskException(): ProjectAppException(){
+
+class NotPermitedToTransferTaskException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.NOT_PERMITED_TO_TRANSFER_TASK
 }
-class OrdersOfStatesIsIncorrectException(): ProjectAppException(){
+
+class OrdersOfStatesIsIncorrectException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.ORDERS_OF_STATES_IS_INCORRECT
 }
+
+class InvalidStatePositionException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.INVALID_STATE_POSITION
+}
+
+class TemplateNameExistsException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.TEMPLATE_NAME_EXITS_EXEPTION
+}
+
+class TemplateNotFoundException(): ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.TEMPLATE_NOT_FOUND
+}
+
+class UserNotAllowedToCreateProjectException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.USER_NOT_ALLOWED_TO_CREATE_PROJECT
+}
+
+
 
 
