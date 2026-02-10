@@ -27,3 +27,13 @@ data class RequestEmployeeRole(
 data class EmployeeRoleResponse(
     val employeeRole: EmployeeRole
 )
+
+data class CheckUsersInOrganizationRequest(
+    val organizationId: Long,
+    val userIds: List<Long>
+)
+
+data class BoardUserRequestDto(
+    val boardId: Long,
+    val userIds: List<Long>
+)

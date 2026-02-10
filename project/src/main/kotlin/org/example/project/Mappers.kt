@@ -72,11 +72,12 @@ class BoardMapper(
         )
     }
 
-    fun toFullDto(board: Board, taskStates: List<TaskState>): BoardFullResponseDto {
+    fun toFullDto(board: Board, taskStates: List<TaskState>,assignedUsersIds : List<Long>): BoardFullResponseDto {
         return BoardFullResponseDto(
             id = board.id!!,
             name = board.name,
             description = board.description ?: "",
+            assignedUsers=assignedUsersIds,
             taskStates = taskStates.map { taskStateMapper.toShortDto(it) }.toList(),
             createdAt = board.createdDate!!,
             updatedAt = board.modifiedDate!!

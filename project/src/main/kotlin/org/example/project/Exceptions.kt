@@ -184,6 +184,18 @@ class UserNotAllowedToCreateProjectException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.USER_NOT_ALLOWED_TO_CREATE_PROJECT
 }
 
+class EmployeeCannotCreateBoardException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.EMPLOYEE_CANNOT_CREATE_BOARD
+}
+class BoardNameAlreadyExistsInProjectException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.BOARD_NAME_ALREADY_EXISTS_IN_PROJECT
+}
+class UserAlreadyAssignedToBoardException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.USER_ALREADY_ASSIGNED_TO_BOARD
+}
+class UserNotAssignedToBoardException() : ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.USER_NOT_ASSIGNED_TO_BOARD
+}
 
 
 

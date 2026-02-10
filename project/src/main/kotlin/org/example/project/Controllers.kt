@@ -3,6 +3,7 @@ package org.example.project
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.BoardTaskStateCreateDto
+import org.example.project.dtos.BoardUserRequestDto
 import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectUpdateDto
 import org.example.project.dtos.RelationshipsCheckDto
@@ -111,7 +112,7 @@ class TaskStateController(
 }
 
 @RestController
-@RequestMapping("/board-task-states")
+@RequestMapping("/project/board-task-states")
 class BoardTaskStateController(
     private val service: BoardTaskStateService
 ) {
@@ -136,5 +137,8 @@ class InternalController(
 
     @PostMapping("/check-state-relationships")
     fun checkTransferStates(@RequestBody body: TransferTaskCheckDto): Boolean = stateService.transferTaskCheck(body)
+
+    @PostMapping("/check-board-user-relationships")
+    fun checkBoardUserRelationships(@RequestBody body: BoardUserRequestDto): Boolean = boardService.checkBoardUserRelationships(body)
 
 }
