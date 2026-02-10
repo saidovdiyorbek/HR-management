@@ -10,6 +10,7 @@ import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
 import org.example.organization.SecurityUtil
+import org.example.organization.dto.AllEmployeesResponse
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
 import org.example.organization.dto.EmployeeRoleResponse
@@ -27,6 +28,7 @@ interface EmployeeService {
     fun getEmployeeRole(body: RequestEmployeeRole): EmployeeRoleResponse
     fun updateEmployeeRole(organizationId: Long, userId: Long, body: EmployeeRoleUpdateRequest)
     fun areAllUsersInOrganization(organizationId: Long, userIds: List<Long>): Boolean
+    fun getAllEmployees(): List<AllEmployeesResponse>
 }
 
 @Service
@@ -124,4 +126,20 @@ class EmployeeServiceImpl(
 
         return true
     }
+
+    override fun getAllEmployees(): List<AllEmployeesResponse> {
+        val employees = employeeRepository.findAllNotDeleted()
+
+        return employees
+            .groupBy { it.userId }   // userId bo'yicha guruhlash
+            .map { (userId, empList) ->
+                AllEmployeesResponse(
+                    id = empList.first().id!!,
+                    userId = userId,
+                    organizationId = empList.map { it.organization.id!! },
+                    employeeRole = empList.map { it.employeeRole }
+                )
+            }
+    }
+
 }

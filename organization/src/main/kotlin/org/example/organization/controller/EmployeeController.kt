@@ -1,5 +1,6 @@
 package org.example.organization.controller
 
+import org.example.organization.dto.AllEmployeesResponse
 import org.example.organization.dto.CheckUsersInOrganizationRequest
 import org.example.organization.dto.CheckUsersInOrganizationResponse
 import org.example.organization.dto.EmployeeCreateRequest
@@ -10,28 +11,29 @@ import org.example.organization.dto.EmployeeUpdateRequest
 import org.example.organization.dto.RequestEmployeeRole
 import org.example.organization.service.EmployeeService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/organizations/employees/{organizationId}")
+@RequestMapping("/employees")
 class EmployeeController(
     private val service: EmployeeService
 ) {
 
-    @PostMapping
+    @PostMapping("/organizations/{organizationId}")
     fun addEmployee(
         @PathVariable organizationId: Long,
         @RequestBody body: EmployeeCreateRequest,
         @RequestParam(required = false) createdByUserId: Long?
     ) = service.addEmployee(organizationId, body, createdByUserId)
 
-    @GetMapping
+    @GetMapping("/organizations/{organizationId}")
     fun getEmployeesByOrganization(
         @PathVariable organizationId: Long
     ): List<EmployeeResponse> =
         service.getEmployeesByOrganization(organizationId)
 
-    @PutMapping("/{userId}")
+    @PutMapping("/organizations/{organizationId}/{userId}")
     fun updateEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
@@ -41,7 +43,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/organizations/{organizationId}/{userId}")
     fun removeEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long
@@ -50,12 +52,16 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/{userId}/role")
+    @PutMapping("/organizations/{organizationId}/{userId}/role")
     fun updateEmployeeRole(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
         @RequestBody body: EmployeeRoleUpdateRequest
     ) = service.updateEmployeeRole(organizationId, userId, body)
+
+    // dbdagi barcha employeelarni olish
+    @GetMapping("/all")
+    fun getAllEmployees(): List<AllEmployeesResponse> = service.getAllEmployees()
 }
 
 @RestController
