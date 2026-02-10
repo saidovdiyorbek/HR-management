@@ -92,6 +92,7 @@ interface EmployeeRepository : BaseRepository<Employee> {
         userIds: List<Long>
     ): Long
 
+
 }
 
 
