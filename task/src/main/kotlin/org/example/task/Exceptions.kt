@@ -8,8 +8,11 @@ import org.springframework.context.MessageSource
 import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ResourceBundleMessageSource
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.io.IOException
@@ -92,6 +95,27 @@ class TaskExceptionHandler(
         return ResponseEntity
             .badRequest()
             .body(ex.toBaseMessage())
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<BaseMessage> {
+        val filedError: FieldError = ex.bindingResult.allErrors.first() as FieldError
+
+        val local = LocaleContextHolder.getLocale()
+        val errorMessage = filedError.defaultMessage ?: "Validation error"
+
+        val message = try {
+            messageSource.getMessage(errorMessage, null, local)
+        }catch (e: NoSuchMessageException) {
+            errorMessage.replace("_", " ").lowercase()
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(BaseMessage(
+                code = 400,
+                message = "${filedError.field}: $message"
+            ))
     }
 }
 
