@@ -48,3 +48,10 @@ data class CheckUsersInOrganizationRequest(
 data class CheckUsersInOrganizationResponse(
     val result: Boolean
 )
+
+data class AllEmployeesResponse(
+    val id: Long,
+    val userId: Long,
+    val organizationId: List<Long>,
+    val employeeRole: List<EmployeeRole>,
+)
