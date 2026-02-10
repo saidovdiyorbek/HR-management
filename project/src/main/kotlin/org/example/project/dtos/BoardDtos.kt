@@ -24,6 +24,7 @@ data class BoardFullResponseDto(
     val id: Long,
     val name: String,
     val description: String,
+    val assignedUsers: List<Long>,
     val taskStates: List<TaskStateShortResponseDto>,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
