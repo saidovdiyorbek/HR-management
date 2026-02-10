@@ -31,11 +31,8 @@ interface AttachClient{
     fun deleteList(@RequestBody hashes: List<String>)
 }
 
-@FeignClient(name = "organization-service", url = "\${services.hosts.organization}/internal/api/v1/employees", configuration = [FeignOAuth2TokenConfig::class])
+@FeignClient(name = "organization-service", url = "\${services.hosts.organization}/internal/api/v1/employee-context", configuration = [FeignOAuth2TokenConfig::class])
 interface OrganizationClient{
-
-    @GetMapping("/get-employee-role/{userId}")
-    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse
 
     @GetMapping("/get-current-organization/{userId}")
     fun getCurrentOrganizationByUserId(
@@ -43,10 +40,14 @@ interface OrganizationClient{
     ): CurrentOrganizationResponse
 }
 
+
 @FeignClient(name = "employee-service", url = "\${services.hosts.organization}/internal/api/v1/employees", configuration = [FeignOAuth2TokenConfig::class])
 interface EmployeeClient{
     @PostMapping("/check-users-in-organization")
     fun checkUsersInOrganization(
         @RequestBody dto: CheckUsersInOrganizationRequest
     ): Boolean
+
+    @GetMapping("/get-employee-role/{userId}")
+    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse
 }

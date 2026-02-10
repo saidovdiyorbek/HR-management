@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/employee-context")
+@RequestMapping("/organizations/employee-context")
 class EmployeeContextController(
     private val service: EmployeeContextService
 ) {

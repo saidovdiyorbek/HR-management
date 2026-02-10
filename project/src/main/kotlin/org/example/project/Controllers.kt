@@ -51,7 +51,7 @@ class ProjectControllers(
 
 
 @RestController
-@RequestMapping("/boards")
+@RequestMapping("/projects/boards")
 class BoardController(
     private val service: BoardService
 ) {
