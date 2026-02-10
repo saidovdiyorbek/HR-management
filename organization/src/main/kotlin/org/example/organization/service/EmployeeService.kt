@@ -1,5 +1,6 @@
 package org.example.organization.service
 
+import org.example.organization.AuthUserClient
 import org.example.organization.EmployeeAlreadyExistsException
 import org.example.organization.EmployeeContext
 import org.example.organization.EmployeeContextRepository
@@ -10,6 +11,7 @@ import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
 import org.example.organization.SecurityUtil
+import org.example.organization.UserNotFoundException
 import org.example.organization.dto.AllEmployeesResponse
 import org.example.organization.dto.EmployeeCreateRequest
 import org.example.organization.dto.EmployeeResponse
@@ -37,6 +39,7 @@ class EmployeeServiceImpl(
     private val employeeContextRepo: EmployeeContextRepository,
     private val organizationRepository: OrganizationRepository,
     private val mapper: EmployeeMapper,
+    private val authClient: AuthUserClient,
     private val securityUtil: SecurityUtil,
 ) : EmployeeService {
 
@@ -47,7 +50,9 @@ class EmployeeServiceImpl(
 
         if (!org.isActive) throw OrganizationNotActiveException()
 
-        // duplicate membership
+        val userExists = authClient.exists(body.userId)
+        if (!userExists) throw UserNotFoundException()
+
         if (employeeRepository.existsByUserIdAndOrganizationId(body.userId, organizationId)) {
             throw EmployeeAlreadyExistsException()
         }

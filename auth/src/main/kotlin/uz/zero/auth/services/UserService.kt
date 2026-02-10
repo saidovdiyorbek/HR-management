@@ -28,4 +28,8 @@ class UserService(
 
         userRepository.save(userMapper.toEntity(request, Role.USER))
     }
+
+    fun checkUserExist(userId: Long): Boolean {
+        return userRepository.existsByIdAndDeletedFalse(userId)
+    }
 }

@@ -1,6 +1,7 @@
 package uz.zero.auth.controllers
 
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uz.zero.auth.services.UserService
@@ -16,5 +17,9 @@ class AuthInternalController(
 
     @GetMapping("/test")
     fun testUserInfo() = "test info user"
+
+    @GetMapping("/check-user/{userId}")
+    fun checkUser(@PathVariable userId: Long): Boolean = userService.checkUserExist(userId)
+
 
 }

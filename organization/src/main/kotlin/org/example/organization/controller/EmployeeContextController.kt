@@ -28,14 +28,3 @@ class EmployeeContextController(
         service.getCurrentOrganization(userId)
 }
 
-@RestController
-@RequestMapping("/internal/api/v1/employee-context")
-class EmployeeContextInternalController(
-    private val service: EmployeeContextService
-) {
-
-    @GetMapping("/get-current-organization/{userId}")
-    fun getCurrentOrganizationByUserId(
-        @PathVariable userId: Long
-    ): CurrentOrganizationResponse = service.getCurrentOrganization(userId)
-}
