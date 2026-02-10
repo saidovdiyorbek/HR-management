@@ -86,3 +86,11 @@ class TaskStateTemplateItem(
     @ManyToOne val taskState: TaskState,
     @Column(nullable = false) var position: Int
 ): BaseEntity()
+
+
+@Entity
+@Table(name = "board_user")
+class BoardUser(
+    @ManyToOne val board: Board,
+    @Column(name = "user_id", nullable = false, unique = true) val userId: Long
+): BaseEntity()

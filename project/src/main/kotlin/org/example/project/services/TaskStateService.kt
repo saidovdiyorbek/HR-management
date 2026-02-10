@@ -22,6 +22,7 @@ import org.example.project.TaskStateTemplateItem
 import org.example.project.TaskStateTemplateItemRepository
 import org.example.project.TaskStateTemplateRepository
 import org.example.project.TemplateNameExistsException
+import org.example.project.TemplateNotFoundException
 import org.example.project.dtos.TaskStateCreateDto
 import org.example.project.dtos.TaskStateFullResponseDto
 import org.example.project.dtos.TaskStateShortResponseDto
@@ -68,21 +69,6 @@ class TaskStateServiceImpl(
         val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
         val taskState = mapper.toEntity(dto, organization.organizationId)
         repository.save(taskState)
-        
-        dto.boardId?.let { boardId -> 
-            val board = boardRepository.findByIdAndDeletedFalse(boardId)
-                ?: throw BoardNotFoundException()
-             
-            val project = projectRepository.findByIdAndDeletedFalse(board.project.id!!)
-                ?: throw ProjectEndException() 
-
-            if (project.endDate != null && !project.isActive) {
-                 throw ProjectEndException()
-            }
-            
-            val maxPos = boardTaskStateRepo.findMaxPosition(boardId) ?: 0
-            boardTaskStateRepo.save(BoardTaskState(board, taskState, maxPos + 1))
-        }
     }
 
     override fun update(id: Long, dto: TaskStateUpdateDto) {
@@ -181,13 +167,13 @@ class TaskStateServiceImpl(
             TaskStateTemplateResponseDto(
                 id = template.id!!,
                 name = template.name,
-                states = items.map { item ->
+                states = items?.map { item ->
                     TaskStateTemplateItemResponseDto(
                         id = item.id!!,
                         taskState = mapper.toShortDto(item.taskState),
                         position = item.position
                     )
-                }
+                } ?: throw TemplateNotFoundException()
             )
         }
     }

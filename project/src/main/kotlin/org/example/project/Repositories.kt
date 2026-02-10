@@ -60,6 +60,9 @@ interface ProjectRepository : BaseRepository<Project> {
 @Repository
 interface BoardRepository : BaseRepository<Board> {
     fun findByProjectIdAndDeletedFalse(id: Long): List<Board>
+    fun existsByName(name: String): Boolean
+    fun existsByNameAndProjectAndDeletedFalse(name: String, project: Project, deleted: Boolean): Boolean
+    fun existsByNameAndProjectAndDeletedIsFalse(name: String, project: Project): Boolean
 }
 
 @Repository
@@ -103,5 +106,12 @@ interface TaskStateTemplateRepository : BaseRepository<TaskStateTemplate> {
 
 @Repository
 interface TaskStateTemplateItemRepository : BaseRepository<TaskStateTemplateItem> {
-    fun findAllByTemplateIdAndDeletedFalse(templateId: Long): List<TaskStateTemplateItem>
+    fun findAllByTemplateIdAndDeletedFalse(templateId: Long): List<TaskStateTemplateItem>?
+}
+
+@Repository
+interface BoardUserRepository : BaseRepository<BoardUser> {
+    fun existsByBoardIdAndUserIdAndDeletedFalse(boardId: Long, userId: Long): Boolean
+    fun findByBoardIdAndDeletedFalse(id: Long) : List<BoardUser>
+
 }
