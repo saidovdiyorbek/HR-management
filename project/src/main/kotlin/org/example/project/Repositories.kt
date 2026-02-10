@@ -61,7 +61,6 @@ interface ProjectRepository : BaseRepository<Project> {
 interface BoardRepository : BaseRepository<Board> {
     fun findByProjectIdAndDeletedFalse(id: Long): List<Board>
     fun existsByName(name: String): Boolean
-    fun existsByNameAndProjectAndDeletedFalse(name: String, project: Project, deleted: Boolean): Boolean
     fun existsByNameAndProjectAndDeletedIsFalse(name: String, project: Project): Boolean
 }
 

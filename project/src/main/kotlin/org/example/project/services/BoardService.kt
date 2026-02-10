@@ -27,6 +27,7 @@ import org.example.project.TaskStateTemplateRepository
 import org.example.project.TemplateNotFoundException
 import org.example.project.UserAlreadyAssignedToBoardException
 import org.example.project.UserNotAssignedToBoardException
+import org.example.project.dtos.AssignUsersToBoardDto
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardFullResponseDto
 import org.example.project.dtos.BoardShortResponseDto
@@ -48,7 +49,7 @@ interface BoardService {
     fun getById(id: Long): BoardFullResponseDto
     fun getAll(pageable: Pageable): Page<BoardShortResponseDto>
     fun checkRelationships(body: RelationshipsCheckDto): Boolean
-    fun assignUsersToBoard(boardId: Long, userIds: List<Long>)
+    fun assignUsersToBoard(boardId: Long, dto : AssignUsersToBoardDto)
     fun checkBoardUserRelationships(body: BoardUserRequestDto): Boolean
 }
 
@@ -142,15 +143,15 @@ class BoardServiceImpl(
         throw ProjectNotFoundException()
     }
 
-    override fun assignUsersToBoard(boardId: Long, userIds: List<Long>) {
+    override fun assignUsersToBoard(boardId: Long,  dto : AssignUsersToBoardDto) {
         val board = repository.findByIdAndDeletedFalse(boardId)
             ?: throw BoardNotFoundException()
 
-        employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(board.project.organizationId, userIds))
+        employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(board.project.organizationId, dto.userIds))
 
         testIsUserCeoInThisCompany(board.project)
 
-        userIds.forEach { userId ->
+        dto.userIds.forEach { userId ->
             if (!boardUserRepository.existsByBoardIdAndUserIdAndDeletedFalse(boardId, userId)) {
                 boardUserRepository.save(BoardUser(board, userId))
             }else{
