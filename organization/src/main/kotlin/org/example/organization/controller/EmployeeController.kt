@@ -15,25 +15,25 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/employees")
+@RequestMapping("/organizations/employees/{organizationId}")
 class EmployeeController(
     private val service: EmployeeService
 ) {
 
-    @PostMapping("/organizations/{organizationId}")
+    @PostMapping
     fun addEmployee(
         @PathVariable organizationId: Long,
         @RequestBody body: EmployeeCreateRequest,
         @RequestParam(required = false) createdByUserId: Long?
     ) = service.addEmployee(organizationId, body, createdByUserId)
 
-    @GetMapping("/organizations/{organizationId}")
+    @GetMapping
     fun getEmployeesByOrganization(
         @PathVariable organizationId: Long
     ): List<EmployeeResponse> =
         service.getEmployeesByOrganization(organizationId)
 
-    @PutMapping("/organizations/{organizationId}/{userId}")
+    @PutMapping
     fun updateEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
@@ -43,7 +43,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("/organizations/{organizationId}/{userId}")
+    @DeleteMapping("/{userId}")
     fun removeEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long
@@ -52,7 +52,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/organizations/{organizationId}/{userId}/role")
+    @PutMapping("/{userId}/role")
     fun updateEmployeeRole(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
@@ -61,7 +61,7 @@ class EmployeeController(
 
     // dbdagi barcha employeelarni olish
     @GetMapping("/all")
-    fun getAllEmployees(): List<AllEmployeesResponse> = service.getAllEmployees()
+    fun getAllEmployees(@PathVariable organizationId: Long): List<AllEmployeesResponse> = service.getAllEmployees()
 }
 
 @RestController
