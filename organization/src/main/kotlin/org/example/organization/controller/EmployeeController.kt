@@ -63,7 +63,7 @@ class EmployeeController(
 class EmployeeInternalController(
     private val service: EmployeeService
 ) {
-    @PostMapping("/get-employee-role/{userId}")
+    @GetMapping("/get-employee-role/{userId}")
     fun getEmployeeRole(@PathVariable userId: Long, @RequestBody dto: RequestEmployeeRole): EmployeeRoleResponse = service.getEmployeeRole(dto)
 
     @PostMapping("/check-users-in-organization")

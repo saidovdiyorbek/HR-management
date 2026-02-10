@@ -75,7 +75,7 @@ class TaskServiceImpl(
 
             dto.assigningEmployeesId?.let {
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
-                    //employeelar tekshiriladi
+                    //TODO employeelar tekshiriladi
                     val savedAssigningEmployee: MutableList<TaskAssignedEmployee> = mutableListOf()
                     dto.assigningEmployeesId?.forEach { employeeId ->
                         savedAssigningEmployee.add(TaskAssignedEmployee(savedTask, employeeId, currentUserId))
@@ -86,13 +86,15 @@ class TaskServiceImpl(
             val savingTaskAttach: MutableList<TaskAttachment> = mutableListOf()
             dto.attachHashes?.let { attachHashes ->
 
-                if (dto.attachHashes!!.isNotEmpty()) {
+                if (attachHashes.isNotEmpty()) {
+                    //TODO check file hash
                     val listExists = attachClient.listExists(
                         InternalHashesCheckRequest(
                             security.getCurrentUserId(),
                             dto.attachHashes!!
                         )
                     )
+
                 }
 
                 dto.attachHashes!!.forEach { attachHashFor ->
@@ -126,7 +128,7 @@ class TaskServiceImpl(
         }
         throw TaskNotFoundException()
     }
-
+    //TODO getAll roliga tekshirish, ozini ozi CEO qilish
     override fun getAll(pageable: Pageable): Page<TaskResponse> {
         val findAll = repository.findAll(pageable)
 
@@ -150,7 +152,7 @@ class TaskServiceImpl(
     override fun update(id: Long, dto: TaskUpdateRequest) {
         val currentUserId = security.getCurrentUserId()
         try{
-            val employeeRole = organizationClient.getEmployeeRoleByUserId(currentUserId).employeeRole
+            val employeeRole = employeeClient.getEmployeeRoleByUserId(currentUserId).employeeRole
             repository.findByIdAndDeletedFalse(id)?.let { task ->
                 var permission: Permission = Permission.OWNER
                 //taskni kim ozgartirmoqchi, Yaratgan employee yoki ceo qila oladi
