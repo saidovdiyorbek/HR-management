@@ -1,5 +1,6 @@
 package org.example.project
 
+import org.example.project.dtos.CheckUsersInOrganizationRequest
 import org.example.project.dtos.CurrentUserOrganizationDto
 import org.example.project.dtos.EmployeeRoleResponse
 import org.example.project.dtos.RequestEmployeeRole
@@ -17,6 +18,11 @@ interface OrganizationClient {
 }
 @FeignClient(name = "employee-service", url = "\${services.hosts.organization}/internal/api/v1/employees" , configuration = [FeignOAuth2TokenConfig::class])
 interface EmployeeClient {
+
+    @PostMapping("/check-users-in-organization")
+    fun checkUsersInOrganization(
+        @RequestBody dto: CheckUsersInOrganizationRequest
+    ): Boolean
 
     @PostMapping("/get-employee-role/{userId}")
     fun getEmployeeRoleByUserId(@PathVariable userId: Long, @RequestBody dto: RequestEmployeeRole):EmployeeRoleResponse
