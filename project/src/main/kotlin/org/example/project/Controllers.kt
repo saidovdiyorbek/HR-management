@@ -1,5 +1,6 @@
 package org.example.project
 
+import org.example.project.dtos.AssignUsersToBoardDto
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.BoardTaskStateCreateDto
@@ -68,6 +69,9 @@ class BoardController(
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = service.getById(id)
+
+    @PostMapping("/{id}/assign")
+    fun assignUser(@PathVariable id: Long, @RequestBody dto: AssignUsersToBoardDto) = service.assignUsersToBoard(id, dto)
 
     @GetMapping
     fun getAll(pageable: Pageable) = service.getAll(pageable)
