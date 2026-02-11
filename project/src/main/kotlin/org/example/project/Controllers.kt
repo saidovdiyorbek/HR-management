@@ -1,5 +1,6 @@
 package org.example.project
 
+import jakarta.validation.Valid
 import org.example.project.dtos.AssignUsersToBoardDto
 import org.example.project.dtos.BoardCreateDto
 import org.example.project.dtos.BoardUpdateDto
@@ -33,10 +34,10 @@ class ProjectControllers(
 ) {
 
     @PostMapping
-    fun create(@RequestBody dto: ProjectCreateDto) = service.create(dto)
+    fun create(@Valid @RequestBody dto: ProjectCreateDto) = service.create(dto)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody dto: ProjectUpdateDto) = service.update(id, dto)
+    fun update(@PathVariable id: Long,@Valid  @RequestBody dto: ProjectUpdateDto) = service.update(id, dto)
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
@@ -63,10 +64,10 @@ class BoardController(
 ) {
 
     @PostMapping
-    fun create(@RequestBody dto: BoardCreateDto) = service.create(dto)
+    fun create(@Valid @RequestBody dto: BoardCreateDto) = service.create(dto)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody dto: BoardUpdateDto) = service.update(id, dto)
+    fun update(@PathVariable id: Long,@Valid  @RequestBody dto: BoardUpdateDto) = service.update(id, dto)
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
@@ -88,10 +89,10 @@ class TaskStateController(
 ) {
 
     @PostMapping
-    fun create(@RequestBody dto: TaskStateCreateDto) = service.create(dto)
+    fun create(@Valid @RequestBody dto: TaskStateCreateDto) = service.create(dto)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody dto: TaskStateUpdateDto) = service.update(id, dto)
+    fun update(@PathVariable id: Long, @Valid  @RequestBody dto: TaskStateUpdateDto) = service.update(id, dto)
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
@@ -113,7 +114,7 @@ class TaskStateController(
     
     // Templates
     @PostMapping("/templates")
-    fun createTemplate(@RequestBody dto: TaskStateTemplateCreateDto) = service.createTemplate(dto)
+    fun createTemplate(@Valid @RequestBody dto: TaskStateTemplateCreateDto) = service.createTemplate(dto)
 
     @GetMapping("/templates")
     fun getTemplates() = service.getTemplates()
