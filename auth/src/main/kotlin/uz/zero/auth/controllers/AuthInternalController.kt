@@ -8,7 +8,7 @@ import uz.zero.auth.services.UserService
 
 
 @RestController
-@RequestMapping("internal")
+@RequestMapping("/internal")
 class AuthInternalController(
     private val userService: UserService
 ) {

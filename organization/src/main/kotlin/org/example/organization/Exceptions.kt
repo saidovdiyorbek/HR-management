@@ -77,8 +77,23 @@ class GlobalExceptionHandler(
             .badRequest()
             .body(BaseMessage(ex.errorType().code, message))
     }
+
+    @ExceptionHandler(FeignClientException::class)
+    fun handleFeignClientException(ex: FeignClientException): ResponseEntity<BaseMessage> {
+        return ResponseEntity
+            .badRequest()
+            .body(ex.toBaseMessage())
+    }
 }
 
+class FeignClientException(
+    val errorCode: Int?,
+    val errorMessage: String?
+) : RuntimeException(errorMessage) {
+    fun toBaseMessage(): BaseMessage {
+        return BaseMessage(code = errorCode, message = errorMessage)
+    }
+}
 
 sealed class OrganizationAppException(message: String? = null) : RuntimeException() {
     abstract fun errorType(): ErrorCode
@@ -95,14 +110,7 @@ sealed class OrganizationAppException(message: String? = null) : RuntimeExceptio
     }
 }
 
-class FeignClientException(
-    val errorCode: Int?,
-    val errorMessage: String?
-) : RuntimeException(errorMessage) {
-    fun toBaseMessage(): BaseMessage {
-        return BaseMessage(code = errorCode, message = errorMessage)
-    }
-}
+
 
 class OrganizationAlreadyExistsException : OrganizationAppException() {
     override fun errorType() = ErrorCode.ORGANIZATION_ALREADY_EXISTS

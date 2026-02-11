@@ -3,6 +3,7 @@ package uz.zero.auth.services
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uz.zero.auth.enums.Role
+import uz.zero.auth.exceptions.UserNotFoundException
 import uz.zero.auth.mappers.UserEntityMapper
 import uz.zero.auth.model.requests.UserCreateRequest
 import uz.zero.auth.model.responses.UserInfoResponse
@@ -30,6 +31,10 @@ class UserService(
     }
 
     fun checkUserExist(userId: Long): Boolean {
-        return userRepository.existsByIdAndDeletedFalse(userId)
+        val res=  userRepository.existsByIdAndDeletedFalse(userId)
+        if(res){
+            return true
+        }
+             throw UserNotFoundException()
     }
 }
