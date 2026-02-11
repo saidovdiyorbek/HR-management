@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uz.zero.auth.enums.Role
 import uz.zero.auth.exceptions.UserNotFoundException
+import uz.zero.auth.exceptions.UsernameAlreadyExistsException
 import uz.zero.auth.mappers.UserEntityMapper
 import uz.zero.auth.model.requests.UserCreateRequest
 import uz.zero.auth.model.responses.UserInfoResponse
@@ -23,9 +24,7 @@ class UserService(
     @Transactional
     fun registerUser(request: UserCreateRequest) {
         if (userRepository.existsByUsername(request.username))
-            throw IllegalArgumentException("Username ${request.username} is already registered")
-
-
+            throw UsernameAlreadyExistsException()
 
         userRepository.save(userMapper.toEntity(request, Role.USER))
     }

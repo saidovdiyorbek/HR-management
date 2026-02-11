@@ -149,3 +149,7 @@ sealed class AuthAppException(message: String? = null) : RuntimeException() {
 class UserNotFoundException(): AuthAppException(){
     override fun errorType()= ErrorCode.USER_NOT_FOUND
 }
+
+class UsernameAlreadyExistsException(): AuthAppException() {
+    override fun errorType() = ErrorCode.USERNAME_ALREADY_EXISTS
+}

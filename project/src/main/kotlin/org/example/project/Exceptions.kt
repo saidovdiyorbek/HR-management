@@ -196,6 +196,12 @@ class UserAlreadyAssignedToBoardException() : ProjectAppException() {
 class UserNotAssignedToBoardException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.USER_NOT_ASSIGNED_TO_BOARD
 }
+class StateAlreadyConnectedBoardException(): ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.STATE_ALREADY_CONNECTED_TO_BOARD
+}
+class UserNotCEOException(): ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.USER_NOT_CEO_EXCEPTION
+}
 
 
 

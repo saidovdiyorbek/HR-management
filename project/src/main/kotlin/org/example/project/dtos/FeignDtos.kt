@@ -37,3 +37,15 @@ data class BoardUserRequestDto(
     val boardId: Long,
     val userIds: List<Long>
 )
+
+data class StateShortInfoDto(
+    val id :Long,
+    val name: String,
+    val order: Int
+)
+
+data class BoardInfoDto(
+    val id: Long,
+    val name: String,
+    val states: List<StateShortInfoDto>
+)
