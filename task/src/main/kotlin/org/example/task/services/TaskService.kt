@@ -87,17 +87,16 @@ class TaskServiceImpl(
             dto.attachHashes?.let { attachHashes ->
 
                 if (attachHashes.isNotEmpty()) {
-                    //TODO check file hash
-                    val listExists = attachClient.listExists(
+
+                    attachClient.listExists(
                         InternalHashesCheckRequest(
                             security.getCurrentUserId(),
                             dto.attachHashes!!
                         )
                     )
-
                 }
 
-                dto.attachHashes!!.forEach { attachHashFor ->
+                attachHashes.forEach { attachHashFor ->
                     savingTaskAttach.add(TaskAttachment(
                         savedTask,
                         attachHashFor,
@@ -130,6 +129,7 @@ class TaskServiceImpl(
     }
     //TODO getAll roliga tekshirish, ozini ozi CEO qilish
     override fun getAll(pageable: Pageable): Page<TaskResponse> {
+        val currentUserId = security.getCurrentUserId()
         val findAll = repository.findAll(pageable)
 
         return findAll.map { task ->
