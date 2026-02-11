@@ -11,6 +11,7 @@ import org.example.task.Permission
 import org.example.task.ProjectClient
 import org.example.task.Role
 import org.example.task.SecurityUtil
+import org.example.task.SomethingWentWrongException
 import org.example.task.Task
 import org.example.task.TaskAssignedEmployee
 import org.example.task.TaskAssignedEmployeeRepository
@@ -57,10 +58,18 @@ class TaskServiceImpl(
     @Transactional
     override fun create(dto: TaskCreateRequest) {
         val currentUserId = security.getCurrentUserId()
+
         try {
-            projectClient.checkTaskRelationships(RelationshipsCheckDto(
-                dto.boardId, dto.stateId))
+            val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
+                RelationshipsCheckDto(
+                    dto.boardId, dto.stateId
+                )
+            )
             val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
+
+            if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
+                throw SomethingWentWrongException()
+            }
             val savedTask = repository.save(Task(
                 boardId = dto.boardId,
                 stateId = dto.stateId,

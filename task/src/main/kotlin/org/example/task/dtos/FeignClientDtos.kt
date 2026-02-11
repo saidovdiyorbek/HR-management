@@ -43,3 +43,7 @@ data class BoardInfoDto(
     val name: String,
     val states: List<StateShortInfoDto>
 )
+
+data class CheckResponse(
+    val organizationId: Long
+)
