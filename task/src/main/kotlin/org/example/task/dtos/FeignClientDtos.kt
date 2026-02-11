@@ -1,5 +1,7 @@
 package org.example.task.dtos
 
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
 import org.example.task.EmployeeRole
 import org.example.task.Permission
 
@@ -45,5 +47,16 @@ data class BoardInfoDto(
 )
 
 data class CheckResponse(
+    val organizationId: Long
+)
+
+data class RequestEmployeeRole(
+
+    @field:NotNull(message = "userId is required")
+    @field:Positive(message = "userId must be greater than 0")
+    val userId: Long,
+
+    @field:NotNull(message = "organizationId is required")
+    @field:Positive(message = "organizationId must be greater than 0")
     val organizationId: Long
 )
