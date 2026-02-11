@@ -143,3 +143,7 @@ class EmployeeContextNotFoundException : OrganizationAppException() {
 class UserNotFoundException : OrganizationAppException() {
     override fun errorType() = ErrorCode.USER_NOT_FOUND
 }
+
+class AdminCanNotBeEmployee : OrganizationAppException() {
+    override fun errorType() = ErrorCode.ADMIN_CAN_NOT_BE_EMPLOYEE
+}

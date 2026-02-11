@@ -1,5 +1,6 @@
 package org.example.organization.service
 
+import org.example.organization.AdminCanNotBeEmployee
 import org.example.organization.AuthUserClient
 import org.example.organization.EmployeeAlreadyExistsException
 import org.example.organization.EmployeeContext
@@ -11,6 +12,7 @@ import org.example.organization.FeignClientException
 import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
+import org.example.organization.Role
 import org.example.organization.SecurityUtil
 import org.example.organization.UserNotFoundException
 import org.example.organization.dto.AllEmployeesResponse
@@ -52,9 +54,12 @@ class EmployeeServiceImpl(
 
             if (!org.isActive) throw OrganizationNotActiveException()
 
-            val userExists = authClient.exists(body.userId)
-            println("userExists ishlayapdi >>>> $userExists")
-            if (!userExists) throw UserNotFoundException()
+
+
+            val role=authClient.exists(body.userId)
+            if(role== Role.ADMIN){
+                throw AdminCanNotBeEmployee()
+            }
 
             if (employeeRepository.existsByUserIdAndOrganizationId(body.userId, organizationId)) {
                 throw EmployeeAlreadyExistsException()

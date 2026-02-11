@@ -8,6 +8,7 @@ import org.example.organization.service.OrganizationService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,7 +20,7 @@ class OrganizationController(
     @PostMapping
     fun create(@RequestBody body: OrganizationCreateRequest) = service.create(body)
 
-
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @GetMapping
     fun getAll(): List<OrganizationAllResponse> =
         service.getAll()

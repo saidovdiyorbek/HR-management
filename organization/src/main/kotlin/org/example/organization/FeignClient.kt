@@ -8,5 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable
 interface AuthUserClient {
 
     @GetMapping("/check-user/{userId}")
-    fun exists(@PathVariable userId: Long): Boolean
+    fun exists(@PathVariable userId: Long): Role
+
 }
