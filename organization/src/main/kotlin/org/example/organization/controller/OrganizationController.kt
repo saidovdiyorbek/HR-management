@@ -50,5 +50,5 @@ class OrganizationController(
 
     @GetMapping("/{userId}/organizations")
     fun getMyOrganizations(@PathVariable userId: Long): List<Long> =
-        service.getMyOrganizations(userId)
+        service.getMyOrganizations()
 }
