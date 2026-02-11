@@ -197,8 +197,20 @@ class TaskServiceImpl(
     override fun update(id: Long, dto: TaskUpdateRequest) {
         val currentUserId = security.getCurrentUserId()
         try{
+
             val employeeRole = employeeClient.getEmployeeRoleByUserId(currentUserId).employeeRole
             repository.findByIdAndDeletedFalse(id)?.let { task ->
+                val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
+                    RelationshipsCheckDto(
+                        task.boardId, task.id!!
+                    )
+                )
+                val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
+
+                if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
+                    throw SomethingWentWrongException()
+                }
+
                 var permission: Permission = Permission.OWNER
                 //taskni kim ozgartirmoqchi, Yaratgan employee yoki ceo qila oladi
                 if(task.createUserId != currentUserId){
@@ -239,7 +251,7 @@ class TaskServiceImpl(
                             val postAttachHashes = taskAttachRepo.getPostAttachHash(id)
 
                             val hashesToAdd = this.attachHashes!!.filter { !postAttachHashes.contains(it) }
-                            val hashesToRemove = postAttachHashes.filter { !this.attachHashes!!.contains(it) }
+                            val hashesToRemove = postAttachHashes.filter { attachHash.contains(it) }
 
                             if (hashesToRemove.isNotEmpty()) {
                                 taskAttachRepo.removeByFileHashList(hashesToRemove)
@@ -271,7 +283,8 @@ class TaskServiceImpl(
         val currentUserId = security.getCurrentUserId()
         try {
             repository.findByIdAndDeletedFalse(id)?.let { task ->
-                if (task.createUserId != currentUserId){
+                val employeeRole = employeeClient.getEmployeeRoleByUserId(currentUserId)
+                if (task.createUserId != currentUserId || employeeRole.employeeRole != EmployeeRole.CEO){
                     throw ThisTaskIsNotYoursExceptions()
                 }
                 if(employees.isNotEmpty()){
