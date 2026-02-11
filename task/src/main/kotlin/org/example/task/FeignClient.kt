@@ -1,5 +1,6 @@
 package org.example.task
 
+import org.example.task.dtos.BoardInfoDto
 import org.example.task.dtos.CheckUsersInOrganizationRequest
 import org.example.task.dtos.CurrentOrganizationResponse
 import org.example.task.dtos.EmployeeRoleResponse
@@ -20,6 +21,9 @@ interface ProjectClient{
 
     @PostMapping("/check-state-relationships")
     fun checkTransferStates(@RequestBody body: TransferTaskCheckDto): Boolean
+
+    @GetMapping("/get-board-users/{boardId}")
+    fun getBoardUsers(@PathVariable boardId: Long): BoardInfoDto
 }
 
 @FeignClient(name = "attach-service", url = "\${services.hosts.attach}/internal/api/v1/attaches", configuration = [FeignOAuth2TokenConfig::class])
