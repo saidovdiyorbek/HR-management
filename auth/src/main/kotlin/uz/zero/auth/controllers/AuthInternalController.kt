@@ -21,5 +21,4 @@ class AuthInternalController(
     @GetMapping("/check-user/{userId}")
     fun checkUser(@PathVariable userId: Long): Boolean = userService.checkUserExist(userId)
 
-
 }

@@ -1,7 +1,11 @@
 package org.example.organization.dto
 
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
+
 data class SetCurrentOrganizationRequest(
-    val organizationId: Long
+    @field:Positive(message = "organizationId must be greater than 0")
+    val organizationId: Long?
 )
 
 data class CurrentOrganizationResponse(
