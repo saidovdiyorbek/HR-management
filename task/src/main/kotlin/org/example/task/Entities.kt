@@ -44,6 +44,7 @@ class Task(
     var tags: List<String>? = null,
     var isActive: Boolean = true,
     val completedAt: Date? = null,
+    val currentOrganizationId: Long,
 ) : BaseEntity()
 
 @Entity

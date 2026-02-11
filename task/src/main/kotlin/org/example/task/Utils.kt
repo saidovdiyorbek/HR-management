@@ -21,8 +21,11 @@ class SecurityUtil{
         val authentication = SecurityContextHolder.getContext().authentication
 
         if (authentication is JwtAuthenticationToken){
-            val userRole = authentication.tokenAttributes[JWT_ROLE_KEY] as Role
-            return userRole
+
+            val userRole = authentication.tokenAttributes[JWT_ROLE_KEY]
+            val roleEnum = Role.valueOf(userRole as String)
+
+            return roleEnum
         }
         throw Exception("Invalid token")
     }

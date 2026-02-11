@@ -1,5 +1,7 @@
 package org.example.task
 
+import org.example.task.dtos.BoardInfoDto
+import org.example.task.dtos.CheckResponse
 import org.example.task.dtos.CheckUsersInOrganizationRequest
 import org.example.task.dtos.CurrentOrganizationResponse
 import org.example.task.dtos.EmployeeRoleResponse
@@ -16,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody
 @FeignClient(name = "project-service", url = "\${services.hosts.project}/internal/api/v1/projects", configuration = [FeignOAuth2TokenConfig::class])
 interface ProjectClient{
     @PostMapping("/check-relationships")
-    fun checkTaskRelationships(@RequestBody body: RelationshipsCheckDto): Boolean
+    fun checkTaskRelationships(@RequestBody body: RelationshipsCheckDto): CheckResponse
 
     @PostMapping("/check-state-relationships")
     fun checkTransferStates(@RequestBody body: TransferTaskCheckDto): Boolean
+
+    @GetMapping("/get-board-users/{boardId}")
+    fun getBoardUsers(@PathVariable boardId: Long): BoardInfoDto
 }
 
 @FeignClient(name = "attach-service", url = "\${services.hosts.attach}/internal/api/v1/attaches", configuration = [FeignOAuth2TokenConfig::class])

@@ -51,13 +51,12 @@ interface TaskRepository : BaseRepository<Task>{
         select max(t.orderIndex) from Task t
     """)
     fun getTaskLastOrderIndex(): Int?
-}
-interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
+
     @Query("""
-        select ta.fileHash from TaskAttachment ta
-        where ta.task.id = :taskId and ta.deleted = false 
+        select t from Task t
+        where t.currentOrganizationId = :organizationId and t.createUserId = :userId and t.deleted = false
     """)
-    fun findTaskAttachmentByTaskId(taskId: Long): List<String>
+    fun getEmployeeTaskCurrentOrganization(organizationId: Long, userId: Long, pageable: Pageable): Page<Task>
 
     @Modifying
     @Query("""update Task t set t.orderIndex = ?2
@@ -77,6 +76,15 @@ interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
     """)
     fun updateTaskOrderIndexesDecrement(newIndex: Int,  oldInex: Int)
 
+
+}
+interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
+    @Query("""
+        select ta.fileHash from TaskAttachment ta
+        where ta.task.id = :taskId and ta.deleted = false 
+    """)
+    fun findTaskAttachmentByTaskId(taskId: Long): List<String>
+
     @Query("""select ta.fileHash  from TaskAttachment ta 
         where ta.task.id = : id and ta.deleted = false
     """)
@@ -88,8 +96,6 @@ interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
         where ta.fileHash in ?1
     """)
     fun removeByFileHashList(hashesToRemove: List<String>)
-
-
 }
 interface TaskHistoryRepository : BaseRepository<TaskHistory>{}
 interface TaskLabelRepository : BaseRepository<TaskLabel>{}
