@@ -336,7 +336,7 @@ class BoardServiceImpl(
         } else {
 
             dto.templateId?.let { tid ->
-                if(templateRepository.existsById(tid)) throw TemplateNotFoundException()
+                templateRepository.findByIdAndDeletedFalse(tid)?: throw TemplateNotFoundException()
                 val items = templateItemRepository.findAllByTemplateIdAndDeletedFalse(tid)
                     ?: throw TemplateNotFoundException()
 
@@ -348,12 +348,23 @@ class BoardServiceImpl(
     }
 
     private fun testPositions(statesToLink: MutableList<BoardTaskStateDefinitionDto>, board: Board) {
-        statesToLink.forEach { stateDef ->
-            val taskState = taskStateRepository.findByIdAndDeletedFalse(stateDef.stateId)
-                ?: throw TaskStateNotFoundException()
+        if (statesToLink.isEmpty()) return
 
-            val boardTaskState = BoardTaskState(board, taskState, stateDef.position)
-            boardTaskStateRepository.save(boardTaskState)
+        val sortedStates = statesToLink.sortedBy { it.position }
+
+        if (sortedStates.first().position != 1) {
+            throw InvalidStatePositionException()
+        }
+
+        for (i in 0 until sortedStates.size - 1) {
+            if (sortedStates[i + 1].position != sortedStates[i].position + 1) {
+                throw InvalidStatePositionException()
+            }
+        }
+
+        statesToLink.forEach { stateDef ->
+            taskStateRepository.findByIdAndDeletedFalse(stateDef.stateId)
+                ?: throw TaskStateNotFoundException()
         }
     }
 

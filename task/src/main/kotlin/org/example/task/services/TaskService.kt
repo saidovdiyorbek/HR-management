@@ -24,6 +24,7 @@ import org.example.task.ThisTaskIsNotYoursExceptions
 import org.example.task.dtos.CheckUsersInOrganizationRequest
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
+import org.example.task.dtos.RequestEmployeeRole
 import org.example.task.dtos.TaskCreateRequest
 import org.example.task.dtos.TaskResponse
 import org.example.task.dtos.TaskUpdateRequest
@@ -85,9 +86,9 @@ class TaskServiceImpl(
                 currentOrganizationId = currentOrganizationByUserId.organizationId
             ))
 
-            dto.assigningEmployeesId?.let {
+            dto.assigningEmployeesId?.let { assigningEmployeesId ->
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
-                    //TODO employeelar tekshiriladi
+                    employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(currentOrganizationByUserId.organizationId, assigningEmployeesId))
                     val savedAssigningEmployee: MutableList<TaskAssignedEmployee> = mutableListOf()
                     dto.assigningEmployeesId?.forEach { employeeId ->
                         savedAssigningEmployee.add(TaskAssignedEmployee(savedTask, employeeId, currentUserId))
@@ -190,7 +191,7 @@ class TaskServiceImpl(
                         )
                 }
             }
-        return listOf<TaskResponse>() as Page<TaskResponse>
+        return Page.empty(pageable)
     }
 
     @Transactional
@@ -198,7 +199,7 @@ class TaskServiceImpl(
         val currentUserId = security.getCurrentUserId()
         try{
 
-            val employeeRole = employeeClient.getEmployeeRoleByUserId(currentUserId).employeeRole
+            employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId, organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
             repository.findByIdAndDeletedFalse(id)?.let { task ->
                 val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
                     RelationshipsCheckDto(
@@ -283,8 +284,9 @@ class TaskServiceImpl(
         val currentUserId = security.getCurrentUserId()
         try {
             repository.findByIdAndDeletedFalse(id)?.let { task ->
-                val employeeRole = employeeClient.getEmployeeRoleByUserId(currentUserId)
-                if (task.createUserId != currentUserId || employeeRole.employeeRole != EmployeeRole.CEO){
+                val employeeRole = employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId,
+                    organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
+                if (task.createUserId != currentUserId || employeeRole != EmployeeRole.CEO){
                     throw ThisTaskIsNotYoursExceptions()
                 }
                 if(employees.isNotEmpty()){

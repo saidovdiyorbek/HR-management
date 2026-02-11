@@ -7,6 +7,7 @@ import org.example.task.dtos.CurrentOrganizationResponse
 import org.example.task.dtos.EmployeeRoleResponse
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
+import org.example.task.dtos.RequestEmployeeRole
 import org.example.task.dtos.TransferTaskCheckDto
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -53,6 +54,8 @@ interface EmployeeClient{
         @RequestBody dto: CheckUsersInOrganizationRequest
     ): Boolean
 
-    @GetMapping("/get-employee-role/{userId}")
-    fun getEmployeeRoleByUserId(@PathVariable userId: Long): EmployeeRoleResponse
+    @PostMapping("/get-employee-role/{userId}")
+    fun getEmployeeRole(@PathVariable userId: Long, @RequestBody dto: RequestEmployeeRole): EmployeeRoleResponse
+
+
 }
