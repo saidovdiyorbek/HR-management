@@ -88,6 +88,7 @@ interface TaskStateRepository : BaseRepository<TaskState> {
     )
     fun findAllByBoardIdAndDeletedFalse(boardId: Long, pageable: Pageable) : Page<TaskState>
     fun findAllByOrganizationIdAndDeletedFalse(organizationId: Long, pageable: Pageable) : Page<TaskState>
+    fun existsByNameAndOrganizationIdAndDeletedFalse(name: String, organizationId: Long): Boolean
 }
 
 @Repository

@@ -202,5 +202,9 @@ class UserNotCEOException(): ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.USER_NOT_CEO_EXCEPTION
 }
 
+class StateNameExistsException(): ProjectAppException() {
+    override fun errorType(): ErrorCode = ErrorCode.STATE_NAME_EXISTS_EXCEPTION
+}
+
 
 

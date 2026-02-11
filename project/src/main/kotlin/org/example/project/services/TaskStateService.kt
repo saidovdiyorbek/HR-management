@@ -10,6 +10,7 @@ import org.example.project.OrganizationClient
 import org.example.project.Permission
 import org.example.project.ProjectRepository
 import org.example.project.SecurityUtil
+import org.example.project.StateNameExistsException
 import org.example.project.TaskState
 import org.example.project.TaskStateMapper
 import org.example.project.TaskStateNotFoundException
@@ -66,13 +67,23 @@ class TaskStateServiceImpl(
     override fun create(dto: TaskStateCreateDto) {
         val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
         val taskState = mapper.toEntity(dto, organization.organizationId)
+        if(repository.existsByNameAndOrganizationIdAndDeletedFalse(taskState.name, organization.organizationId)) {
+            throw StateNameExistsException()
+        }
         repository.save(taskState)
     }
 
     override fun update(id: Long, dto: TaskStateUpdateDto) {
         val taskState = repository.findByIdAndDeletedFalse(id)
             ?: throw TaskStateNotFoundException()
-        dto.name?.let { taskState.name = it }
+
+        dto.name?.let {
+            if(repository.existsByNameAndOrganizationIdAndDeletedFalse(dto.name, taskState.organizationId)) {
+                throw StateNameExistsException()
+            }
+            taskState.name = it
+
+        }
         dto.description?.let { taskState.description = it }
         dto.permission?.let { taskState.permission = it }
         repository.save(taskState)

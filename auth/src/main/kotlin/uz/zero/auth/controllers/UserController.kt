@@ -31,6 +31,10 @@ class UserController(
     @PutMapping("/password/{id}")
     fun updatePassword(@RequestBody request: PasswordUpdateDto, @PathVariable id: Long) = userService.updatePassword(id,request)
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
+    @GetMapping()
+    fun getAll() = userService.getAll()
+
     @GetMapping("/test")
     fun testAdd() = "test adding "
 }

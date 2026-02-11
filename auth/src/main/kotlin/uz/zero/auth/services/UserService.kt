@@ -64,5 +64,9 @@ class UserService(
         userRepository.save(user)
     }
 
+    fun getAll(): List<UserInfoResponse> {
+        return userRepository.findAllNotDeleted().map { it -> userMapper.toUserInfo(it) }
+    }
+
 
 }
