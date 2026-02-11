@@ -17,6 +17,7 @@ class OrganizationController(
     private val service: OrganizationService
 ) {
 
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @PostMapping
     fun create(@RequestBody body: OrganizationCreateRequest) = service.create(body)
 
@@ -24,7 +25,7 @@ class OrganizationController(
     @GetMapping
     fun getAll(): List<OrganizationAllResponse> =
         service.getAll()
-
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @GetMapping("/page")
     fun getAllPaginated(pageable: Pageable): Page<OrganizationAllResponse> =
         service.getAllPaginated(pageable)
@@ -33,6 +34,8 @@ class OrganizationController(
     fun getOne(@PathVariable id: Long): OrganizationFullResponse =
         service.getOne(id)
 
+
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @PutMapping("/{id}")
     fun update(
         @PathVariable id: Long,
@@ -42,6 +45,7 @@ class OrganizationController(
         return ResponseEntity.ok().build()
     }
 
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): ResponseEntity<Unit> {
         service.delete(id)
