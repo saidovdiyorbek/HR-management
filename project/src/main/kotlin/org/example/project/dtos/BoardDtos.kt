@@ -37,3 +37,8 @@ data class BoardTaskStateDefinitionDto(
 data class AssignUsersToBoardDto(
     val userIds: List<Long>
 )
+
+data class StatePositionUpdateDto(
+    val stateId: Long,
+    val newPosition: Int
+)

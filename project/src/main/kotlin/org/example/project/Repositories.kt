@@ -1,6 +1,7 @@
 package org.example.project
 
 import jakarta.persistence.EntityManager
+import org.example.project.dtos.StateShortInfoDto
 import org.example.project.dtos.TaskStateWithPositionDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -60,7 +61,6 @@ interface ProjectRepository : BaseRepository<Project> {
 @Repository
 interface BoardRepository : BaseRepository<Board> {
     fun findByProjectIdAndDeletedFalse(id: Long): List<Board>
-    fun existsByName(name: String): Boolean
     fun existsByNameAndProjectAndDeletedIsFalse(name: String, project: Project): Boolean
 }
 
@@ -86,7 +86,8 @@ interface TaskStateRepository : BaseRepository<TaskState> {
         WHERE bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
         """
     )
-    fun findAllByBoardId(boardId: Long, pageable: Pageable) : Page<TaskState>
+    fun findAllByBoardIdAndDeletedFalse(boardId: Long, pageable: Pageable) : Page<TaskState>
+    fun findAllByOrganizationIdAndDeletedFalse(organizationId: Long, pageable: Pageable) : Page<TaskState>
 }
 
 @Repository
@@ -95,6 +96,17 @@ interface BoardTaskStateRepository : BaseRepository<BoardTaskState> {
     
     @Query("SELECT MAX(bts.position) FROM BoardTaskState bts WHERE bts.board.id = :boardId AND bts.deleted = false")
     fun findMaxPosition(boardId: Long): Int?
+    fun existsByBoardAndTaskStateAndDeletedFalse(board: Board, taskState: TaskState): Boolean
+    @Query(
+        """
+        SELECT NEW org.example.project.dtos.StateShortInfoDto(ts.id, ts.name, bt.position)
+        FROM TaskState ts 
+        JOIN BoardTaskState bt ON ts.id = bt.taskState.id 
+        WHERE bt.board.id = :boardId AND ts.deleted = false AND bt.deleted = false
+        ORDER BY bt.position ASC
+        """
+    )
+    fun findByBoardIdWithStateAndDeletedFalse(boardId: Long) :List<StateShortInfoDto>
 }
 
 @Repository
