@@ -44,6 +44,7 @@ data class TaskResponse(
     val id: Long,
     val boardId: Long,
     val stateId: Long,
+    val boarInfo: BoardInfoDto,
     val title: String,
     val description: String? = null,
     val priority: TaskPriority? = null,

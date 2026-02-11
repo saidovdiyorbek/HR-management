@@ -40,6 +40,7 @@ import org.example.project.dtos.BoardShortResponseDto
 import org.example.project.dtos.BoardTaskStateDefinitionDto
 import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.BoardUserRequestDto
+import org.example.project.dtos.CheckResponse
 import org.example.project.dtos.CheckUsersInOrganizationRequest
 import org.example.project.dtos.RelationshipsCheckDto
 import org.example.project.dtos.RequestEmployeeRole
@@ -55,7 +56,7 @@ interface BoardService {
     fun delete(id: Long)
     fun getById(id: Long): BoardFullResponseDto
     fun getAll(pageable: Pageable): Page<BoardShortResponseDto>
-    fun checkRelationships(body: RelationshipsCheckDto): Boolean
+    fun checkRelationships(body: RelationshipsCheckDto): CheckResponse
     fun assignUsersToBoard(boardId: Long, dto : AssignUsersToBoardDto)
     fun checkBoardUserRelationships(body: BoardUserRequestDto): Boolean
     fun removeStatesFromBoard(boardId: Long, stateId: Long)
@@ -145,7 +146,7 @@ class BoardServiceImpl(
     }
 
 
-    override fun checkRelationships(body: RelationshipsCheckDto): Boolean {
+    override fun checkRelationships(body: RelationshipsCheckDto): CheckResponse {
         repository.findByIdAndDeletedFalse(body.boardId)?.let{ board ->
             projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
                 if (project.endDate != null) {
@@ -160,7 +161,7 @@ class BoardServiceImpl(
                 if(stateOrder.position !=1){
                     throw StateIsNotFirstException()
                 }
-                return true
+                return CheckResponse(project.organizationId)
             }
             throw BoardNotFoundException()
         }

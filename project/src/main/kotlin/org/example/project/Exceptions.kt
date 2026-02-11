@@ -9,7 +9,6 @@ import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.io.IOException
@@ -180,7 +179,7 @@ class TemplateNotFoundException(): ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.TEMPLATE_NOT_FOUND
 }
 
-class UserNotAllowedToCreateProjectException() : ProjectAppException() {
+class UserNotAllowedModifyProjectException() : ProjectAppException() {
     override fun errorType(): ErrorCode = ErrorCode.USER_NOT_ALLOWED_TO_CREATE_PROJECT
 }
 
