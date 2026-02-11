@@ -1,5 +1,6 @@
 package org.example.organization.service
 
+import org.example.organization.EmployeeRepository
 import org.example.organization.OrganizationAlreadyExistsException
 import org.example.organization.OrganizationMapper
 import org.example.organization.OrganizationNotFoundException
@@ -21,7 +22,7 @@ interface OrganizationService {
     fun getOne(id: Long): OrganizationFullResponse
     fun update(id: Long, body: OrganizationUpdateRequest)
     fun delete(id: Long)
-    fun getMyOrganizations(userId: Long): List<Long>
+    fun getMyOrganizations(): List<Long>
 }
 
 @Service
@@ -29,6 +30,7 @@ class OrganizationServiceImpl(
     private val repository: OrganizationRepository,
     private val mapper: OrganizationMapper,
     private val securityUtil: SecurityUtil,
+    private val employeeRepository: EmployeeRepository
 ) : OrganizationService {
 
     @Transactional
@@ -77,8 +79,10 @@ class OrganizationServiceImpl(
         repository.trash(id)
     }
 
-    override fun getMyOrganizations(userId: Long): List<Long> {
-        return repository.findAllByCreatedByUserIdAndDeletedFalse(securityUtil.getCurrentUserId())
-            .map { it.id!! }
+    override fun getMyOrganizations(): List<Long> {
+        val currentUserId = securityUtil.getCurrentUserId()
+
+        return employeeRepository.findAllByUserIdAndDeletedFalse(currentUserId)
+            .map { it.organization.id!! }
     }
 }
