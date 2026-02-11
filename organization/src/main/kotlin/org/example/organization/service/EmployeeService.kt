@@ -51,6 +51,7 @@ class EmployeeServiceImpl(
         if (!org.isActive) throw OrganizationNotActiveException()
 
         val userExists = authClient.exists(body.userId)
+        println("userExists ishlayapdi >>>> $userExists")
         if (!userExists) throw UserNotFoundException()
 
         if (employeeRepository.existsByUserIdAndOrganizationId(body.userId, organizationId)) {
