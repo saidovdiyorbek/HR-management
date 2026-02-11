@@ -148,4 +148,8 @@ class TaskNotFoundException() : TaskAppException() {
 class ThisTaskIsNotYoursExceptions() : TaskAppException() {
     override fun errorType() = ErrorCode.THIS_TASK_NOT_YOURS
 }
+class SomethingWentWrongException() : TaskAppException() {
+    override fun errorType() = ErrorCode.SOMETHING_WENT_WRONG
+
+}
 

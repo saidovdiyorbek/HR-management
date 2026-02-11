@@ -129,7 +129,7 @@ class InternalController(
 ) {
 
     @PostMapping("/check-relationships")
-    fun checkRelationships(@RequestBody body: RelationshipsCheckDto): Boolean = boardService.checkRelationships(body)
+    fun checkRelationships(@RequestBody body: RelationshipsCheckDto) = boardService.checkRelationships(body)
 
     @PostMapping("/check-state-relationships")
     fun checkTransferStates(@RequestBody body: TransferTaskCheckDto): Boolean = stateService.transferTaskCheck(body)

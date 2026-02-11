@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 class EmployeeController(
     private val service: EmployeeService
 ) {
-
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @PostMapping
     fun addEmployee(
         @PathVariable organizationId: Long,
@@ -33,7 +33,7 @@ class EmployeeController(
     ): List<EmployeeResponse> =
         service.getEmployeesByOrganization(organizationId)
 
-    @PutMapping
+    @PutMapping("{userId}")
     fun updateEmployee(
         @PathVariable organizationId: Long,
         @PathVariable userId: Long,
@@ -52,6 +52,7 @@ class EmployeeController(
         return ResponseEntity.ok().build()
     }
 
+    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     @PutMapping("/{userId}/role")
     fun updateEmployeeRole(
         @PathVariable organizationId: Long,

@@ -31,3 +31,19 @@ data class CheckUsersInOrganizationRequest(
 data class CurrentOrganizationResponse(
     val organizationId: Long
 )
+
+data class StateShortInfoDto(
+    val id :Long,
+    val name: String,
+    val order: Int
+)
+
+data class BoardInfoDto(
+    val id: Long,
+    val name: String,
+    val states: List<StateShortInfoDto>
+)
+
+data class CheckResponse(
+    val organizationId: Long
+)

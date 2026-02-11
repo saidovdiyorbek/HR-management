@@ -9,7 +9,9 @@ import org.example.task.GenerateHash
 import org.example.task.OrganizationClient
 import org.example.task.Permission
 import org.example.task.ProjectClient
+import org.example.task.Role
 import org.example.task.SecurityUtil
+import org.example.task.SomethingWentWrongException
 import org.example.task.Task
 import org.example.task.TaskAssignedEmployee
 import org.example.task.TaskAssignedEmployeeRepository
@@ -50,15 +52,24 @@ class TaskServiceImpl(
     private val projectClient: ProjectClient,
     private val organizationClient: OrganizationClient,
     private val employeeClient: EmployeeClient,
-    private val hash: GenerateHash
+    private val hash: GenerateHash,
+    client: ProjectClient
 ) : TaskService {
     @Transactional
     override fun create(dto: TaskCreateRequest) {
         val currentUserId = security.getCurrentUserId()
-        try {
-            projectClient.checkTaskRelationships(RelationshipsCheckDto(
-                dto.boardId, dto.stateId))
 
+        try {
+            val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
+                RelationshipsCheckDto(
+                    dto.boardId, dto.stateId
+                )
+            )
+            val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
+
+            if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
+                throw SomethingWentWrongException()
+            }
             val savedTask = repository.save(Task(
                 boardId = dto.boardId,
                 stateId = dto.stateId,
@@ -71,6 +82,7 @@ class TaskServiceImpl(
                 deadline = dto.deadline,
                 tags = dto.tags,
                 createUserId = currentUserId,
+                currentOrganizationId = currentOrganizationByUserId.organizationId
             ))
 
             dto.assigningEmployeesId?.let {
@@ -122,30 +134,63 @@ class TaskServiceImpl(
                 estimatedHours = task.estimatedHours,
                 deadline = task.deadline,
                 tags = task.tags,
-                attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!)
+                attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!),
+                boarInfo = projectClient.getBoardUsers(task.boardId)
             )
         }
         throw TaskNotFoundException()
     }
     //TODO getAll roliga tekshirish, ozini ozi CEO qilish
     override fun getAll(pageable: Pageable): Page<TaskResponse> {
+        val currentUserRole = security.getCurrentUserRole()
         val currentUserId = security.getCurrentUserId()
-        val findAll = repository.findAll(pageable)
 
-        return findAll.map { task ->
-            TaskResponse(
-                id = task.id!!,
-                boardId = task.boardId,
-                stateId = task.stateId,
-                title = task.title,
-                description = task.description,
-                priority = task.priority,
-                estimatedHours = task.estimatedHours,
-                deadline = task.deadline,
-                tags = task.tags,
-                attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!)
-            )
+        if (currentUserRole == Role.DEVELOPER || currentUserRole == Role.ADMIN){
+            val findAll = repository.findAll(pageable)
+            return findAll.map { task ->
+                TaskResponse(
+                    id = task.id!!,
+                    boardId = task.boardId,
+                    stateId = task.stateId,
+                    title = task.title,
+                    description = task.description,
+                    priority = task.priority,
+                    estimatedHours = task.estimatedHours,
+                    deadline = task.deadline,
+                    tags = task.tags,
+                    attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!),
+                    boarInfo = projectClient.getBoardUsers(task.boardId)
+                )
+            }
         }
+
+        //qaysi orgnizationda turgani
+        val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
+        //employeeni tasklari turgan organizationni ga qarab
+        val employeeTasks = repository.getEmployeeTaskCurrentOrganization(
+            currentOrganizationByUserId.organizationId,
+            currentUserId, pageable
+        )
+
+
+            employeeTasks.forEach { task ->
+                return employeeTasks.map { task ->
+                    TaskResponse(
+                        id = task.id!!,
+                        boardId = task.boardId,
+                        stateId = task.stateId,
+                        title = task.title,
+                        description = task.description,
+                        priority = task.priority,
+                        estimatedHours = task.estimatedHours,
+                        deadline = task.deadline,
+                        tags = task.tags,
+                        attachHashes = taskAttachRepo.findTaskAttachmentByTaskId(task.id!!),
+                        boarInfo = projectClient.getBoardUsers(task.boardId)
+                        )
+                }
+            }
+        return listOf<TaskResponse>() as Page<TaskResponse>
     }
 
     @Transactional
