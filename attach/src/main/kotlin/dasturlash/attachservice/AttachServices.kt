@@ -140,7 +140,7 @@ class AttachServiceImpl(
         if (existsHashCount != null && existsHashCount == hashes.hashes.size.toLong()) {
             return true
         }
-        return false
+        throw AttachNotFoundException()
     }
     @Transactional
     override fun deleteList(hashes: List<String>) {
