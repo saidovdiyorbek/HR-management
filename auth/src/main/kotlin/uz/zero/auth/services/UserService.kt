@@ -3,9 +3,7 @@ package uz.zero.auth.services
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import sun.security.util.Password
 import uz.zero.auth.enums.Role
-import uz.zero.auth.exceptions.UserIsAdminException
 import uz.zero.auth.exceptions.UserNotFoundException
 import uz.zero.auth.exceptions.UsernameAlreadyExistsException
 import uz.zero.auth.mappers.UserEntityMapper
@@ -64,6 +62,10 @@ class UserService(
         user.password = passwordEncoder.encode(newPassword.password)
 
         userRepository.save(user)
+    }
+
+    fun getAll(): List<UserInfoResponse> {
+        return userRepository.findAllNotDeleted().map { it -> userMapper.toUserInfo(it) }
     }
 
 
