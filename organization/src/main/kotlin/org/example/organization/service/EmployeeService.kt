@@ -7,6 +7,7 @@ import org.example.organization.EmployeeContextRepository
 import org.example.organization.EmployeeMapper
 import org.example.organization.EmployeeNotFoundException
 import org.example.organization.EmployeeRepository
+import org.example.organization.FeignClientException
 import org.example.organization.OrganizationNotActiveException
 import org.example.organization.OrganizationNotFoundException
 import org.example.organization.OrganizationRepository
@@ -45,26 +46,29 @@ class EmployeeServiceImpl(
 
     @Transactional
     override fun addEmployee(organizationId: Long, body: EmployeeCreateRequest, createdByUserId: Long?) {
-        val org = organizationRepository.findByIdAndDeletedFalse(organizationId)
-            ?: throw OrganizationNotFoundException()
+        try{
+            val org = organizationRepository.findByIdAndDeletedFalse(organizationId)
+                ?: throw OrganizationNotFoundException()
 
-        if (!org.isActive) throw OrganizationNotActiveException()
+            if (!org.isActive) throw OrganizationNotActiveException()
 
-        val userExists = authClient.exists(body.userId)
-        println("userExists ishlayapdi >>>> $userExists")
-        if (!userExists) throw UserNotFoundException()
+            val userExists = authClient.exists(body.userId)
+            println("userExists ishlayapdi >>>> $userExists")
+            if (!userExists) throw UserNotFoundException()
 
-        if (employeeRepository.existsByUserIdAndOrganizationId(body.userId, organizationId)) {
-            throw EmployeeAlreadyExistsException()
-        }
+            if (employeeRepository.existsByUserIdAndOrganizationId(body.userId, organizationId)) {
+                throw EmployeeAlreadyExistsException()
+            }
 
-        val contextEmployee = employeeRepository.save(mapper.toEntity(body, org, createdByUserId))
+            val contextEmployee = employeeRepository.save(mapper.toEntity(body, org, createdByUserId))
 
-        employeeContextRepo.existsEmployeeContextByUserId(body.userId).takeIf { it }?.let {
-            return
-        }
+            employeeContextRepo.existsEmployeeContextByUserId(body.userId).takeIf { it }?.let {
+                return
+            }
 
-        employeeContextRepo.save(EmployeeContext(contextEmployee.userId, org))
+            employeeContextRepo.save(EmployeeContext(contextEmployee.userId, org))
+        } catch (e : FeignClientException){
+            throw e}
     }
 
     override fun getEmployeesByOrganization(organizationId: Long): List<EmployeeResponse> {
