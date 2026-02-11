@@ -1,8 +1,6 @@
 package org.example.project.services
 
-import org.example.project.BoardNotFoundException
 import org.example.project.BoardRepository
-import org.example.project.BoardTaskState
 import org.example.project.BoardTaskStateNotFoundException
 import org.example.project.BoardTaskStateRepository
 import org.example.project.InvalidStatePositionException
@@ -10,7 +8,6 @@ import org.example.project.NotPermitedToTransferTaskException
 import org.example.project.OrdersOfStatesIsIncorrectException
 import org.example.project.OrganizationClient
 import org.example.project.Permission
-import org.example.project.ProjectEndException
 import org.example.project.ProjectRepository
 import org.example.project.SecurityUtil
 import org.example.project.TaskState
@@ -38,6 +35,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 interface TaskStateService {
+
     fun create(dto: TaskStateCreateDto)
     fun update(id: Long, dto: TaskStateUpdateDto)
     fun delete(id: Long)
@@ -91,7 +89,8 @@ class TaskStateServiceImpl(
     }
 
     override fun getAll(pageable: Pageable): Page<TaskStateShortResponseDto> {
-        return repository.findAllNotDeleted(pageable).map { mapper.toShortDto(it) }
+        val organizationId = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+        return repository.findAllByOrganizationIdAndDeletedFalse(organizationId.organizationId,pageable).map { mapper.toShortDto(it) }
     }
 
     override fun getAllByOrganizationId(
@@ -114,7 +113,7 @@ class TaskStateServiceImpl(
         boardId: Long,
         pageable: Pageable
     ): Page<TaskStateShortResponseDto> {
-        return repository.findAllByBoardId(boardId, pageable)
+        return repository.findAllByBoardIdAndDeletedFalse(boardId, pageable)
             .map { mapper.toShortDto(it) }
     }
 

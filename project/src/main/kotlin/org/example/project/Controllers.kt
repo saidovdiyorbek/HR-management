@@ -13,10 +13,10 @@ import org.example.project.dtos.TaskStateTemplateCreateDto
 import org.example.project.dtos.TaskStateUpdateDto
 import org.example.project.dtos.TransferTaskCheckDto
 import org.example.project.services.BoardService
-import org.example.project.services.BoardTaskStateService
 import org.example.project.services.ProjectService
 import org.example.project.services.TaskStateService
 import org.springframework.data.domain.Pageable
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -47,8 +47,12 @@ class ProjectControllers(
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = service.getById(id)
 
+    @PreAuthorize("hasAnyRole('DEVELOPER','ADMIN')")
     @GetMapping
     fun getAll(pageable: Pageable) = service.getAll(pageable)
+
+    @GetMapping("/organization")
+    fun getAllByOrganizationId(organizationId: Long?, pageable: Pageable) = service.getAllByOrganizationId(organizationId, pageable)
 }
 
 
@@ -115,19 +119,6 @@ class TaskStateController(
     fun getTemplates() = service.getTemplates()
 }
 
-@RestController
-@RequestMapping("/project/board-task-states")
-class BoardTaskStateController(
-    private val service: BoardTaskStateService
-) {
-
-    @PostMapping
-    fun create(@RequestBody dto: BoardTaskStateCreateDto) = service.create(dto)
-
-    @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long) = service.delete(id)
-}
-
 
 @RestController
 @RequestMapping("/internal/api/v1/projects")
@@ -145,4 +136,6 @@ class InternalController(
     @PostMapping("/check-board-user-relationships")
     fun checkBoardUserRelationships(@RequestBody body: BoardUserRequestDto): Boolean = boardService.checkBoardUserRelationships(body)
 
+    @GetMapping("/get-board-users/{boardId}")
+    fun getBoardUsers(@PathVariable boardId: Long) = boardService.boardStateRelationshipsInfo(boardId)
 }

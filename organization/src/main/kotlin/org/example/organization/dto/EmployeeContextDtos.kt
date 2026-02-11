@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive
 
 data class SetCurrentOrganizationRequest(
     @field:Positive(message = "organizationId must be greater than 0")
-    val organizationId: Long?
+    val organizationId: Long
 )
 
 data class CurrentOrganizationResponse(
