@@ -153,3 +153,7 @@ class UserNotFoundException(): AuthAppException(){
 class UsernameAlreadyExistsException(): AuthAppException() {
     override fun errorType() = ErrorCode.USERNAME_ALREADY_EXISTS
 }
+
+class UserIsAdminException(): AuthAppException() {
+    override fun errorType() = ErrorCode.USER_IS_ADMIN
+}

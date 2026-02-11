@@ -5,12 +5,11 @@ import org.example.project.EmployeeClient
 import org.example.project.EmployeeRole
 import org.example.project.FeignClientException
 import org.example.project.OrganizationClient
-import org.example.project.Project
 import org.example.project.ProjectMapper
 import org.example.project.ProjectNotFoundException
 import org.example.project.ProjectRepository
 import org.example.project.SecurityUtil
-import org.example.project.UserNotAllowedToCreateProjectException
+import org.example.project.UserNotAllowedModifyProjectException
 import org.example.project.dtos.ProjectCreateDto
 import org.example.project.dtos.ProjectFullResponseDto
 import org.example.project.dtos.ProjectShortResponseDto
@@ -41,12 +40,8 @@ class ProjectServiceImpl(
 ): ProjectService {
     override fun create(dto: ProjectCreateDto) {
         try{
-            val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
-            val employeeRole=employeeClient.getEmployeeRoleByUserId(securityUtil.getCurrentUserId(),RequestEmployeeRole(securityUtil.getCurrentUserId(), organization.organizationId))
-            if(employeeRole.employeeRole != EmployeeRole.CEO){
-                throw UserNotAllowedToCreateProjectException()
-            }
-            val project = mapper.toEntity(dto, java.time.LocalDate.now(), organization.organizationId)
+           val orgId= checkIsUserCEO()
+            val project = mapper.toEntity(dto, java.time.LocalDate.now(), orgId)
             repository.save(project)
 
         }catch (e: FeignClientException){
@@ -57,13 +52,27 @@ class ProjectServiceImpl(
     override fun update(id: Long, dto: ProjectUpdateDto) {
         val project = repository.findByIdAndDeletedFalse(id)
             ?: throw ProjectNotFoundException()
+        checkIsUserCEO()
         dto.name?.let { project.name = it }
         dto.description?.let { project.description = it }
         dto.organizationId?.let {project.organizationId = it }
         repository.save(project)
     }
 
+    private fun checkIsUserCEO() : Long{
+        val organization = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+        val employeeRole = employeeClient.getEmployeeRoleByUserId(
+            securityUtil.getCurrentUserId(),
+            RequestEmployeeRole(securityUtil.getCurrentUserId(), organization.organizationId)
+        )
+        if (employeeRole.employeeRole != EmployeeRole.CEO) {
+            throw UserNotAllowedModifyProjectException()
+        }
+        return organization.organizationId
+    }
+
     override fun delete(id: Long) {
+        checkIsUserCEO()
         repository.trash(id)
     }
 
