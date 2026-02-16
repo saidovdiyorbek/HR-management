@@ -21,6 +21,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.telegram:telegrambots-spring-boot-starter:6.9.7.1")
+
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
