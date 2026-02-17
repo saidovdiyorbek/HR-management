@@ -45,3 +45,7 @@ class BaseRepositoryImpl<T : BaseEntity>(
     override fun findAllNotDeleted(pageable: Pageable): Page<T> = findAll(isNotDeletedSpecification, pageable)
 
 }
+
+interface TaskActionRepository : BaseRepository<TaskAction>{
+
+}

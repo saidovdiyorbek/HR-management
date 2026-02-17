@@ -3,6 +3,7 @@ package uz.zero.auth.services
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uz.zero.auth.dtos.UserShortInfo
 import uz.zero.auth.enums.Role
 import uz.zero.auth.exceptions.UserNotFoundException
 import uz.zero.auth.exceptions.UsernameAlreadyExistsException
@@ -68,5 +69,15 @@ class UserService(
         return userRepository.findAllNotDeleted().map { it -> userMapper.toUserInfo(it) }
     }
 
+    fun getUserShortInfo(userId: Long): UserShortInfo {
+        userRepository.findByIdAndDeletedFalse(userId)?.let { user ->
+            return UserShortInfo(
+                user.id!!,
+                user.telegramChatId,
+                user.username
+            )
+        }
+        throw UserNotFoundException()
+    }
 
 }

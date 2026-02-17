@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.postgresql:postgresql")

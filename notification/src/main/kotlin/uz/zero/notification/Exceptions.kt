@@ -143,3 +143,6 @@ sealed class NotificationAppException(message: String? = null) : RuntimeExceptio
     }
 }
 
+class NotConnectedTelegramBotException() : NotificationAppException() {
+    override fun errorType() = ErrorCode.NOT_CONNECTED_TELEGRAM_BOT
+}

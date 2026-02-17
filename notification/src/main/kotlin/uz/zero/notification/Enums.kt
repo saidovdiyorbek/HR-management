@@ -11,7 +11,8 @@ enum class TaskPriority{
 enum class ErrorCode(val code: Int, val message: String) {
     TASK_NOT_FOUND(100, "TASK_NOT_FOUND"),
     THIS_TASK_NOT_YOURS(102, "THIS_TASK_NOT_YOURS"),
-    SOMETHING_WENT_WRONG(103, "SOMETHING_WENT_WRONG")
+    SOMETHING_WENT_WRONG(103, "SOMETHING_WENT_WRONG"),
+    NOT_CONNECTED_TELEGRAM_BOT(100, "NOT_CONNECTED_TELEGRAM_BOT"),
 }
 
 enum class Role {
@@ -27,4 +28,12 @@ enum class Permission{
 enum class EmployeeRole {
     CEO,
     EMPLOYEE
+}
+
+enum class ActionType{
+    CREATED,
+    MOVED,
+    STATUS_CHANGED,
+    COMMENT_ADDED,
+    DELETED
 }

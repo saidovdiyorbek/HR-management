@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.MappedSuperclass
-import jakarta.persistence.Table
 import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
 import org.hibernate.annotations.ColumnDefault
@@ -47,4 +46,14 @@ class UserTelegram(
 class Hash(
     @Column(unique = true, nullable = false) var hash: UUID,
     @Column (nullable = false) var expriTime: LocalDateTime,
+) : BaseEntity()
+
+@Entity
+class TaskAction(
+    val taskId: Long,
+    val userId: Long,
+    @Enumerated(EnumType.STRING)
+    val type: ActionType,
+    @Column(columnDefinition = "TEXT")
+    val details: String? = null,
 ) : BaseEntity()

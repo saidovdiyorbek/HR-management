@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uz.zero.auth.dtos.UserShortInfo
 import uz.zero.auth.enums.Role
 import uz.zero.auth.services.UserService
 
@@ -21,5 +22,8 @@ class AuthInternalController(
 
     @GetMapping("/check-user/{userId}")
     fun checkUser(@PathVariable userId: Long): Role = userService.checkUserExist(userId)
+
+    @GetMapping("user-short-info/{userId}")
+    fun getUserShortInfo(@PathVariable userId: Long): UserShortInfo = userService.getUserShortInfo(userId)
 
 }

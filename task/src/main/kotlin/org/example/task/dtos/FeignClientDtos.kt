@@ -2,6 +2,7 @@ package org.example.task.dtos
 
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
+import org.example.task.ActionType
 import org.example.task.EmployeeRole
 import org.example.task.Permission
 
@@ -59,4 +60,11 @@ data class RequestEmployeeRole(
     @field:NotNull(message = "organizationId is required")
     @field:Positive(message = "organizationId must be greater than 0")
     val organizationId: Long
+)
+
+data class TaskActionCreateDto(
+    val taskId: Long,
+    val userId: Long,
+    val type: ActionType,
+    val details: String? = null,
 )
