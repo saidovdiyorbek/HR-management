@@ -1,5 +1,7 @@
 package org.example.organization.service
 
+import org.example.organization.EmployeeContextNotFoundException
+import org.example.organization.EmployeeContextRepository
 import org.example.organization.EmployeeRepository
 import org.example.organization.OrganizationAlreadyExistsException
 import org.example.organization.OrganizationMapper
@@ -9,6 +11,7 @@ import org.example.organization.SecurityUtil
 import org.example.organization.dto.OrganizationAllResponse
 import org.example.organization.dto.OrganizationCreateRequest
 import org.example.organization.dto.OrganizationFullResponse
+import org.example.organization.dto.OrganizationInfo
 import org.example.organization.dto.OrganizationUpdateRequest
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -23,6 +26,7 @@ interface OrganizationService {
     fun update(id: Long, body: OrganizationUpdateRequest)
     fun delete(id: Long)
     fun getMyOrganizations(): List<Long>
+    fun getOrganizationService(userId: Long): OrganizationInfo
 }
 
 @Service
@@ -30,7 +34,8 @@ class OrganizationServiceImpl(
     private val repository: OrganizationRepository,
     private val mapper: OrganizationMapper,
     private val securityUtil: SecurityUtil,
-    private val employeeRepository: EmployeeRepository
+    private val employeeRepository: EmployeeRepository,
+    private val employeeContextRepository: EmployeeContextRepository
 ) : OrganizationService {
 
     @Transactional
@@ -84,5 +89,14 @@ class OrganizationServiceImpl(
 
         return employeeRepository.findAllByUserIdAndDeletedFalse(currentUserId)
             .map { it.organization.id!! }
+    }
+
+    override fun getOrganizationService(userId: Long): OrganizationInfo {
+
+        println(userId)
+        val ctx = employeeContextRepository.findEmployeeContextWithOrganizationInfo(userId)
+            ?: throw EmployeeContextNotFoundException()
+
+        return ctx
     }
 }
