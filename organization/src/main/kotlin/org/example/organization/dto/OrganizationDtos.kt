@@ -44,3 +44,9 @@ data class OrganizationFullResponse(
     val description: String?,
     val isActive: Boolean
 )
+
+data class OrganizationInfo(
+    val id: Long,
+    val name: String,
+    val description: String? = null,
+)

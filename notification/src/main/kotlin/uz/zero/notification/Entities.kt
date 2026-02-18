@@ -3,6 +3,8 @@ package uz.zero.notification
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -12,6 +14,7 @@ import jakarta.persistence.Table
 import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
 import org.hibernate.annotations.ColumnDefault
+import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
@@ -77,4 +80,31 @@ class UserNotification(
     @ManyToOne var userTelegram: UserTelegram,
     @ManyToOne var notification: Notification,
     @Column(nullable = false) @ColumnDefault(value = "false") var isSend: Boolean
+) : BaseEntity()
+
+/*@Entity
+class TaskAction(
+    val taskId: Long,
+    val userId: Long,
+    @Enumerated(EnumType.STRING)
+    val type: ActionType,
+    @Column(columnDefinition = "TEXT")
+    val details: String? = null,
+) : BaseEntity()*/
+
+@Entity
+@Table(name = "notification_logs")
+data class NotificationLog(
+
+    @Column(nullable = false)
+    val userId: Long,
+
+    @Column(nullable = false)
+    val taskId: Long,
+
+    @Column(columnDefinition = "TEXT")
+    val message: String,
+
+    @Enumerated(EnumType.STRING)
+    var status: NotificationStatus,
 ) : BaseEntity()

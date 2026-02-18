@@ -62,15 +62,18 @@ class ResourceServerConfig(
     }
 }
 
-    @Configuration
-    class AuditConfig{
+@Configuration
+class AuditConfig {
 
-        @Bean
-        fun auditorAware(): AuditorAware<String> {
-            return AuditorAware {
-                Optional.ofNullable(
-                    SecurityContextHolder.getContext().authentication?.name ?: "system"
-                )
-            }
+    @Bean
+    fun auditorAware(): AuditorAware<String> {
+        return AuditorAware {
+
+            val authentication = SecurityContextHolder.getContext().authentication
+
+            val currentAuditor = authentication?.name ?: "system"
+
+            Optional.of(currentAuditor)
         }
+    }
 }

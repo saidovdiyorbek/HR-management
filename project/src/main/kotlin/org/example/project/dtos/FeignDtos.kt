@@ -6,6 +6,8 @@ import org.example.project.Permission
 
 data class CurrentUserOrganizationDto(
     val organizationId: Long,
+    val employeeId: Long,
+    val userId: Long,
 )
 
 data class RelationshipsCheckDto(

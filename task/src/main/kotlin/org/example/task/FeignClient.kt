@@ -8,6 +8,7 @@ import org.example.task.dtos.EmployeeRoleResponse
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
 import org.example.task.dtos.RequestEmployeeRole
+import org.example.task.dtos.TaskActionCreateDto
 import org.example.task.dtos.TransferTaskCheckDto
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -58,4 +59,11 @@ interface EmployeeClient{
     fun getEmployeeRole(@PathVariable userId: Long, @RequestBody dto: RequestEmployeeRole): EmployeeRoleResponse
 
 
+}
+
+@FeignClient(name = "notification-service", url = "\${services.hosts.notification}/internal/api/v1/notifications", configuration = [FeignOAuth2TokenConfig::class])
+interface NotificationClient{
+
+    @PostMapping("/create-action")
+    fun createAction(@RequestBody taskActionCreate: TaskActionCreateDto)
 }

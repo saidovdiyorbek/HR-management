@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Repository
 import uz.zero.notification.services.HashService
 import java.util.UUID
 
@@ -47,6 +48,10 @@ class BaseRepositoryImpl<T : BaseEntity>(
     override fun findAllNotDeleted(pageable: Pageable): Page<T> = findAll(isNotDeletedSpecification, pageable)
 
 }
+
+
+@Repository
+interface NotificationRepository : BaseRepository<NotificationLog>
 
 interface HashRepository : BaseRepository<Hash> {
     fun findByHashAndDeletedFalse(hash: String): Hash?

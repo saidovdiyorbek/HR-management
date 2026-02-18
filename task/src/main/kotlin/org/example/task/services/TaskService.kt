@@ -1,11 +1,14 @@
 package org.example.task.services
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
+import org.example.task.ActionType
 import org.example.task.AttachClient
 import org.example.task.EmployeeClient
 import org.example.task.EmployeeRole
 import org.example.task.FeignClientException
 import org.example.task.GenerateHash
+import org.example.task.NotificationClient
 import org.example.task.OrganizationClient
 import org.example.task.Permission
 import org.example.task.ProjectClient
@@ -17,6 +20,7 @@ import org.example.task.TaskAssignedEmployee
 import org.example.task.TaskAssignedEmployeeRepository
 import org.example.task.TaskAttachment
 import org.example.task.TaskAttachmentRepository
+import org.example.task.TaskEventProducer
 import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
@@ -25,13 +29,18 @@ import org.example.task.dtos.CheckUsersInOrganizationRequest
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
 import org.example.task.dtos.RequestEmployeeRole
+import org.example.task.dtos.TaskActionCreateDto
 import org.example.task.dtos.TaskCreateRequest
+import org.example.task.dtos.TaskEventDto
 import org.example.task.dtos.TaskResponse
+import org.example.task.dtos.TaskShortInfoDto
 import org.example.task.dtos.TaskUpdateRequest
 import org.example.task.dtos.TransferTaskCheckDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger {}
 
 interface TaskService {
     fun create(dto: TaskCreateRequest)
@@ -48,11 +57,13 @@ class TaskServiceImpl(
     private val taskAttachRepo: TaskAttachmentRepository,
     private val taskAssignedEmployeeRepo: TaskAssignedEmployeeRepository,
     private val security: SecurityUtil,
+    private val taskEventPro: TaskEventProducer,
 
     private val attachClient: AttachClient,
     private val projectClient: ProjectClient,
     private val organizationClient: OrganizationClient,
     private val employeeClient: EmployeeClient,
+    private val notificationClient: NotificationClient,
     private val hash: GenerateHash,
     client: ProjectClient
 ) : TaskService {
@@ -77,7 +88,7 @@ class TaskServiceImpl(
                 title = dto.title,
                 taskNumber = hash.generateHash(),
                 description = dto.description,
-                priority = TaskPriority.LOW,
+                priority = dto.priority ?: TaskPriority.LOW,
                 orderIndex = repository.getTaskLastOrderIndex() ?: 1,
                 estimatedHours = dto.estimatedHours,
                 deadline = dto.deadline,
@@ -85,7 +96,6 @@ class TaskServiceImpl(
                 createUserId = currentUserId,
                 currentOrganizationId = currentOrganizationByUserId.organizationId
             ))
-
             dto.assigningEmployeesId?.let { assigningEmployeesId ->
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
                     employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(currentOrganizationByUserId.organizationId, assigningEmployeesId))
@@ -117,7 +127,17 @@ class TaskServiceImpl(
                 }
                 taskAttachRepo.saveAll(savingTaskAttach)
             }
+        try {
+            val event = TaskEventDto(
+                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title),
+                userId = currentUserId,
+                action = ActionType.CREATED
+            )
 
+            taskEventPro.sendTaskEvent(event)
+        }catch (e: Exception){
+            logger.error {"Error from kafka $e"}
+        }
         }catch (e: FeignClientException){
             throw e
         }

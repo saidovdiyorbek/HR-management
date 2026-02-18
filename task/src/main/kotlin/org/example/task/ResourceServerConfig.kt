@@ -1,6 +1,7 @@
 package org.example.task
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import feign.Logger
 import org.example.task.dtos.UserInfoResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -73,4 +74,12 @@ class ResourceServerConfig(
                 )
             }
         }
+}
+
+@Configuration
+class FeignConfig{
+    @Bean
+    fun fiegnLoggerLevel(): Logger.Level{
+        return Logger.Level.FULL
+    }
 }

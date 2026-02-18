@@ -143,6 +143,9 @@ sealed class NotificationAppException(message: String? = null) : RuntimeExceptio
     }
 }
 
+class NotConnectedTelegramBotException() : NotificationAppException() {
+    override fun errorType() = ErrorCode.NOT_CONNECTED_TELEGRAM_BOT
+}
 class HashNotValidException(): NotificationAppException() {
     override fun errorType(): ErrorCode {
         return ErrorCode.HASH_NOT_VALID
