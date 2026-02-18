@@ -45,4 +45,26 @@ class BotMessage(
             🔗 <a href="$taskUrl">Topshiriqni ochish</a>
         """.trimIndent()
     }
+
+    fun changeTaskTitle(date: LocalDateTime,
+                        organizationName: String,
+                        projectName: String,
+                        actionOwner: String,
+                        fromTitle: String,
+                        toTitle: String,
+                        state: String,
+                        taskUrl: String) : String {
+
+        return """
+            📋 <b>Topshiriqning sarlavhasi o'zgartirildi:</b>
+            
+            🕐 $date
+            🏢 Tashkilot nomi: $organizationName
+            📁 Loyiha nomi: $projectName
+            🧑‍💼 Harakat egasi: $actionOwner
+            📝 Sarlavha: $fromTitle >>> $toTitle
+            📊 Holat: $state
+            🔗 <a href="$taskUrl">Topshiriqni ochish</a>
+        """.trimIndent()
+    }
 }
