@@ -3,9 +3,11 @@ package org.example.organization.controller
 import org.example.organization.dto.CheckUsersInOrganizationRequest
 import org.example.organization.dto.CurrentOrganizationResponse
 import org.example.organization.dto.EmployeeRoleResponse
+import org.example.organization.dto.OrganizationInfo
 import org.example.organization.dto.RequestEmployeeRole
 import org.example.organization.service.EmployeeContextService
 import org.example.organization.service.EmployeeService
+import org.example.organization.service.OrganizationService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -37,4 +39,13 @@ class EmployeeContextInternalController(
     fun getCurrentOrganizationByUserId(
         @PathVariable userId: Long
     ): CurrentOrganizationResponse = service.getCurrentOrganization(userId)
+}
+
+@RestController
+@RequestMapping("/internal/api/v1/organizations")
+class OrganizationInternalController(
+    private val service: OrganizationService
+){
+    @GetMapping("/get-organization-info/{userId}")
+    fun getOrganizationInfo(@PathVariable userId: Long): OrganizationInfo = service.getOrganizationService(userId)
 }

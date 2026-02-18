@@ -12,6 +12,7 @@ import jakarta.persistence.Table
 import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
 import org.hibernate.annotations.ColumnDefault
+import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
@@ -47,4 +48,31 @@ class UserTelegram(
 class Hash(
     @Column(unique = true, nullable = false) var hash: UUID,
     @Column (nullable = false) var expriTime: LocalDateTime,
+) : BaseEntity()
+
+@Entity
+class TaskAction(
+    val taskId: Long,
+    val userId: Long,
+    @Enumerated(EnumType.STRING)
+    val type: ActionType,
+    @Column(columnDefinition = "TEXT")
+    val details: String? = null,
+) : BaseEntity()
+
+@Entity
+@Table(name = "notification_logs")
+data class NotificationLog(
+
+    @Column(nullable = false)
+    val userId: Long,
+
+    @Column(nullable = false)
+    val taskId: Long,
+
+    @Column(columnDefinition = "TEXT")
+    val message: String,
+
+    @Enumerated(EnumType.STRING)
+    var status: NotificationStatus,
 ) : BaseEntity()

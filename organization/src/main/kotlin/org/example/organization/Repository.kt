@@ -2,6 +2,7 @@ package org.example.organization
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import org.example.organization.dto.OrganizationInfo
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -104,6 +105,14 @@ interface EmployeeContextRepository : BaseRepository<EmployeeContext> {
         where ec.userId = ?1 and ec.deleted = false
     """)
     fun findEmployeeContextByUserId(userId: Long): EmployeeContext?
+
+    @Query("""
+        select new org.example.organization.dto.OrganizationInfo(o.id, o.name, o.description) 
+        from EmployeeContext ec 
+        join Organization o on ec.currentOrganization.id = o.id
+        where ec.userId = ?1 and ec.deleted = false
+    """)
+    fun findEmployeeContextWithOrganizationInfo(userId: Long): OrganizationInfo?
 
     fun existsByUserIdAndDeletedFalse(userId: Long): Boolean
     fun existsEmployeeContextByUserId(userId: Long): Boolean

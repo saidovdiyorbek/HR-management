@@ -20,6 +20,7 @@ class UserEntityMapper(
             fullName = user.fullName,
             username = user.username,
             role = user.role.name,
+            telegramChatId = user.telegramChatId,
         )
     }
 
@@ -29,7 +30,8 @@ class UserEntityMapper(
             username = user.username,
             fullName = user.fullName,
             role = user.role.name,
-            status = user.status
+            status = user.status,
+            telegramChatId = user.telegramChatId
         )
     }
 
@@ -38,6 +40,7 @@ class UserEntityMapper(
             username = username,
             password = passwordEncoder.encode(password),
             role = role,
-            status = UserStatus.ACTIVE)
+            status = UserStatus.ACTIVE,
+            telegramChatId = telegramChatId,)
     }
 }

@@ -40,6 +40,15 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/notification" />
+        <option name="gradleJvm" value="ms-21" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/notification" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/organization" />
         <option name="gradleJvm" value="ms-21" />
         <option name="modules">

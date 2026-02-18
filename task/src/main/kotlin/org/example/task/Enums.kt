@@ -28,3 +28,11 @@ enum class EmployeeRole {
     CEO,
     EMPLOYEE
 }
+
+enum class ActionType{
+    CREATED,
+    MOVED,
+    STATUS_CHANGED,
+    COMMENT_ADDED,
+    DELETED
+}

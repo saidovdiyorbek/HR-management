@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Repository
 
 @NoRepositoryBean
 interface BaseRepository<T : BaseEntity> : JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
@@ -45,3 +46,8 @@ class BaseRepositoryImpl<T : BaseEntity>(
     override fun findAllNotDeleted(pageable: Pageable): Page<T> = findAll(isNotDeletedSpecification, pageable)
 
 }
+
+interface TaskActionRepository : BaseRepository<TaskAction>{
+}
+@Repository
+interface NotificationRepository : BaseRepository<NotificationLog>
