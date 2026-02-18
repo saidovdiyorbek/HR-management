@@ -82,6 +82,7 @@ class TaskServiceImpl(
             if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
                 throw SomethingWentWrongException()
             }
+
             val savedTask = repository.save(Task(
                 boardId = dto.boardId,
                 stateId = dto.stateId,
@@ -96,6 +97,11 @@ class TaskServiceImpl(
                 createUserId = currentUserId,
                 currentOrganizationId = currentOrganizationByUserId.organizationId
             ))
+            val event = TaskEventDto(
+                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title),
+                userId = currentUserId,
+                action = ActionType.CREATED,
+            )
             dto.assigningEmployeesId?.let { assigningEmployeesId ->
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
                     employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(currentOrganizationByUserId.organizationId, assigningEmployeesId))
@@ -103,6 +109,8 @@ class TaskServiceImpl(
                     dto.assigningEmployeesId?.forEach { employeeId ->
                         savedAssigningEmployee.add(TaskAssignedEmployee(savedTask, employeeId, currentUserId))
                     }
+                    taskAssignedEmployeeRepo.saveAll(savedAssigningEmployee)
+                    event.actionDetails?.addedEmployeeIds = assigningEmployeesId
                 }
             }
 
@@ -126,21 +134,15 @@ class TaskServiceImpl(
                     ))
                 }
                 taskAttachRepo.saveAll(savingTaskAttach)
+                event.actionDetails?.attachesHashes = attachHashes
             }
 
-            val findTaskAssignedEmployeeByTaskId =
-                taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(savedTask.id!!)
             try {
-            val event = TaskEventDto(
-                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title, findTaskAssignedEmployeeByTaskId),
-                userId = currentUserId,
-                action = ActionType.CREATED
-            )
-
             taskEventPro.sendTaskEvent(event)
         }catch (e: Exception){
             logger.error {"Error from kafka $e"}
         }
+
         }catch (e: FeignClientException){
             throw e
         }
@@ -224,6 +226,16 @@ class TaskServiceImpl(
 
             employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId, organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
             repository.findByIdAndDeletedFalse(id)?.let { task ->
+
+                val eventDto = TaskEventDto(
+                task = TaskShortInfoDto(
+                    taskId = task.id,
+                    boardId = task.boardId,
+                    title = task.title,
+                    assignedEmployeesIds = taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)),
+                userId = currentUserId,
+                action = ActionType.UPDATED,
+            )
                 val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
                     RelationshipsCheckDto(
                         task.boardId, task.id!!
@@ -260,10 +272,15 @@ class TaskServiceImpl(
                         )
                         if (checkTransferStates){
                             task.stateId = stateId
+                            eventDto.actionDetails?.fromState = task.stateId
+                            eventDto.actionDetails?.toState = task.stateId
                         }
                     }
 
-                    this.title?.let { task.title = it }
+                    this.title?.let {
+                        task.title = it
+                        eventDto.actionDetails?.title = it
+                    }
                     this.description?.let { task.description = it }
                     this.priority?.let { task.priority = it }
                     this.estimatedHours?.let { task.estimatedHours = it }
@@ -289,13 +306,18 @@ class TaskServiceImpl(
                                     postAttachesToAdd.add(TaskAttachment(task, hash))
                                 }
                                 taskAttachRepo.saveAll(postAttachesToAdd)
+                                eventDto.actionDetails?.attachesHashes = hashesToAdd
                             }
                         }
                         return
                     }
                     repository.save(task)
+                    try{ taskEventPro.sendTaskEvent(eventDto) } catch (e: Exception) {
+                        logger.error { "Error from kafka $e" }
+                    }
                     return
                 }
+
             }
             throw TaskNotFoundException()
         }catch (e: FeignClientException){
@@ -307,6 +329,16 @@ class TaskServiceImpl(
         val currentUserId = security.getCurrentUserId()
         try {
             repository.findByIdAndDeletedFalse(id)?.let { task ->
+                val event = TaskEventDto(
+                    task = TaskShortInfoDto(
+                        taskId = task.id,
+                        boardId = task.boardId,
+                        title = task.title,
+                        taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
+                    ),
+                    userId = currentUserId,
+                    action = ActionType.UPDATED
+                )
                 val employeeRole = employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId,
                     organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
                 if (task.createUserId != currentUserId || employeeRole != EmployeeRole.CEO){
@@ -320,6 +352,12 @@ class TaskServiceImpl(
                         assigningEmployees.add(TaskAssignedEmployee(task, employee, currentUserId))
                     }
                     taskAssignedEmployeeRepo.saveAll(assigningEmployees)
+                    event.actionDetails?.addedEmployeeIds = employees
+                }
+                try {
+                    taskEventPro.sendTaskEvent(event)
+                }catch (e: Exception){
+                    logger.error { "Error from kafka $e" }
                 }
                 return
             }
