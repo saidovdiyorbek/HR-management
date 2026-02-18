@@ -5,34 +5,20 @@ import uz.zero.notification.dtos.SendMessageRequest
 import uz.zero.notification.dtos.TaskActionCreateDto
 import uz.zero.notification.dtos.TaskActionEvent
 import uz.zero.notification.dtos.TaskEventDto
-import uz.zero.notification.listeners.TaskActionListener
 
 interface TaskActionService {
-    fun create(taskActionCreate: TaskActionCreateDto)
     fun processTaskEvent(event: TaskEventDto)
 }
 
 @Service
 class TaskActionServiceImpl(
-    private val taskListener: TaskActionListener,
     private val authUserClient: AuthUserClient,
     private val telegramClient: TelegramFeignClient,
     private val organizationClient: OrganizationClient,
     private val securityUtil: SecurityUtil,
     private val notificationLogRepository: NotificationRepository,
 ) : TaskActionService {
-    override fun create(taskActionCreate: TaskActionCreateDto) {
-        taskActionCreate.run {
-            taskListener.handleAction(
-                TaskActionEvent(
-                    this.taskId,
-                    this.userId,
-                    this.type,
-                    this.details,
-                )
-            )
-        }
-    }
+
 
     override fun processTaskEvent(event: TaskEventDto) {
 

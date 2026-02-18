@@ -6,6 +6,8 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
 }
 
+val springCloudVersion by extra("2024.0.1")
+
 group = "uz.zero"
 version = "0.0.1-SNAPSHOT"
 description = "notification"
@@ -25,6 +27,8 @@ extra["springCloudVersion"] = "2024.0.0"
 dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.telegram:telegrambots-spring-boot-starter:6.9.7.1")
+
+
 
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -61,4 +65,10 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    }
 }

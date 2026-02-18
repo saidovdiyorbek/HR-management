@@ -13,6 +13,7 @@ enum class ErrorCode(val code: Int, val message: String) {
     THIS_TASK_NOT_YOURS(102, "THIS_TASK_NOT_YOURS"),
     SOMETHING_WENT_WRONG(103, "SOMETHING_WENT_WRONG"),
     NOT_CONNECTED_TELEGRAM_BOT(100, "NOT_CONNECTED_TELEGRAM_BOT"),
+    HASH_NOT_VALID(104, "HASH_NOT_VALID"),
 }
 
 enum class Role {
