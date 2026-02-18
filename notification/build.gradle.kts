@@ -23,6 +23,7 @@ repositories {
 extra["springCloudVersion"] = "2024.0.0"
 
 dependencies {
+    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.telegram:telegrambots-spring-boot-starter:6.9.7.1")
 
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
