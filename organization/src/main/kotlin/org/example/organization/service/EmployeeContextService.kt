@@ -56,11 +56,16 @@ class EmployeeContextServiceImpl(
 
     override fun getCurrentOrganization(userId: Long): CurrentOrganizationResponse {
         println(userId)
+        val emp = employeeRepository.findByIdAndDeletedFalse(userId)
+            ?: throw EmployeeContextNotFoundException()
+
         val ctx = employeeContextRepository.findEmployeeContextByUserId(userId)
             ?: throw EmployeeContextNotFoundException()
 
         return CurrentOrganizationResponse(
-            organizationId = ctx.currentOrganization.id!!
+            organizationId = ctx.currentOrganization.id!!,
+            employeeId = emp.id!!,
+            userId = emp.userId
         )
     }
 }

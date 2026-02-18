@@ -9,5 +9,7 @@ data class SetCurrentOrganizationRequest(
 )
 
 data class CurrentOrganizationResponse(
-    val organizationId: Long
+    val organizationId: Long,
+    val employeeId: Long,
+    val userId: Long,
 )
