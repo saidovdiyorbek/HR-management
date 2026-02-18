@@ -25,8 +25,8 @@ import java.util.UUID
 @EntityListeners(AuditingEntityListener::class)
 class BaseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
-    @CreatedDate @Temporal(TemporalType.TIMESTAMP)var createdDate: Date? = null,
-    @LastModifiedDate @Temporal(TemporalType.TIMESTAMP)var lastModifiedDate: Date? = null,
+    @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate: Date? = null,
+    @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var lastModifiedDate: Date? = null,
     @CreatedBy var createdBy: String? = null,
     @LastModifiedBy var lastModifiedBy: String? = null,
     @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false,
@@ -35,16 +35,46 @@ class BaseEntity(
 @Entity
 @Table(name = "user_telegram")
 class UserTelegram(
-    @Column(unique = true)var chatId: Long,
+    @Column(unique = true) var chatId: Long,
     var firstName: String? = null,
     var lastName: String? = null,
-    var username: String? = null
+    var username: String? = null,
+    var userId: Long
 ) : BaseEntity()
 
 
 @Entity
 @Table(name = "hash")
 class Hash(
-    @Column(unique = true, nullable = false) var hash: UUID,
-    @Column (nullable = false) var expriTime: LocalDateTime,
+    @Column(unique = true, nullable = false) var hash: String,
+    var userId: Long,
+    @Column(nullable = false) var expriTime: LocalDateTime,
+    var url: String,
+    var isUsed: Boolean = false
+) : BaseEntity()
+
+@Entity
+@Table(name = "notification")
+class Notification(
+    var companyId: Long,
+    var companyName: String,
+    var projectId: Long,
+    var projectName: String,
+    var taskId: Long,
+    var taskName: String,
+    var actionType: ActionType,
+    var actionByName: String,
+    var actionById: Long,
+    var message: String,
+    var fromTaskId: Long? = null,
+    var toTaskId: Long? = null,
+    var url: String,
+) : BaseEntity()
+
+@Entity
+@Table(name = "user_notification")
+class UserNotification(
+    @ManyToOne var userTelegram: UserTelegram,
+    @ManyToOne var notification: Notification,
+    @Column(nullable = false) @ColumnDefault(value = "false") var isSend: Boolean
 ) : BaseEntity()

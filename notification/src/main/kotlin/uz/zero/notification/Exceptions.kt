@@ -143,3 +143,9 @@ sealed class NotificationAppException(message: String? = null) : RuntimeExceptio
     }
 }
 
+class HashNotValidException(): NotificationAppException() {
+    override fun errorType(): ErrorCode {
+        return ErrorCode.HASH_NOT_VALID
+    }
+}
+

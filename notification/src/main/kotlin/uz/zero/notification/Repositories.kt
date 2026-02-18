@@ -13,6 +13,8 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
+import uz.zero.notification.services.HashService
+import java.util.UUID
 
 @NoRepositoryBean
 interface BaseRepository<T : BaseEntity> : JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
@@ -44,4 +46,13 @@ class BaseRepositoryImpl<T : BaseEntity>(
 
     override fun findAllNotDeleted(pageable: Pageable): Page<T> = findAll(isNotDeletedSpecification, pageable)
 
+}
+
+interface HashRepository : BaseRepository<Hash> {
+    fun findByHashAndDeletedFalse(hash: String): Hash?
+    fun deleteByHash(hash: String)
+}
+
+interface UserTelegramRepository : BaseRepository<UserTelegram> {
+    fun findByUserIdAndDeletedIsFalse(userId: Long) :UserTelegram?
 }

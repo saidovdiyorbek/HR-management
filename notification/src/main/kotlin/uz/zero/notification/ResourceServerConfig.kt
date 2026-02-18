@@ -69,7 +69,7 @@ class ResourceServerConfig(
         fun auditorAware(): AuditorAware<String> {
             return AuditorAware {
                 Optional.ofNullable(
-                    SecurityContextHolder.getContext().authentication.name ?: "system"
+                    SecurityContextHolder.getContext().authentication?.name ?: "system"
                 )
             }
         }
