@@ -127,9 +127,12 @@ class TaskServiceImpl(
                 }
                 taskAttachRepo.saveAll(savingTaskAttach)
             }
-        try {
+
+            val findTaskAssignedEmployeeByTaskId =
+                taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(savedTask.id!!)
+            try {
             val event = TaskEventDto(
-                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title),
+                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title, findTaskAssignedEmployeeByTaskId),
                 userId = currentUserId,
                 action = ActionType.CREATED
             )
