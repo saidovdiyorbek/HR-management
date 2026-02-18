@@ -35,5 +35,6 @@ enum class ActionType{
     STATUS_CHANGED,
     COMMENT_ADDED,
     DELETED,
-    DETAILS
+    DETAILS,
+    UPDATED,
 }

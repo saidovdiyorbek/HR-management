@@ -3,21 +3,23 @@ package org.example.task.dtos
 import org.example.task.ActionType
 
 data class TaskEventDto(
-    val task: TaskShortInfoDto,
-    val userId: Long,
-    val action: ActionType,
-    val actionDetails: ActionDetails? = null
+    var task: TaskShortInfoDto,
+    var userId: Long,
+    var action: ActionType,
+    var actionDetails: ActionDetails? = null
 )
 
 data class TaskShortInfoDto(
-    val taskId: Long? = null,
-    val boardId: Long,
-    val title: String,
-    val assignedEmployeesIds: List<Long>,
+    var taskId: Long? = null,
+    var boardId: Long,
+    var title: String,
+    var assignedEmployeesIds: List<Long>? = null,
 )
 
 data class ActionDetails(
-    val fromState: Long? = null,
-    val toState: Long? = null,
-    val title: String? = null,
+    var fromState: Long? = null,
+    var toState: Long? = null,
+    var title: String? = null,
+    var attachesHashes: List<String>? = null,
+    var addedEmployeeIds: List<Long>? = null,
 )
