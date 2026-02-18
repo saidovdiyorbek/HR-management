@@ -20,6 +20,7 @@ import org.example.task.TaskAssignedEmployee
 import org.example.task.TaskAssignedEmployeeRepository
 import org.example.task.TaskAttachment
 import org.example.task.TaskAttachmentRepository
+import org.example.task.TaskEventProducer
 import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
@@ -30,7 +31,9 @@ import org.example.task.dtos.RelationshipsCheckDto
 import org.example.task.dtos.RequestEmployeeRole
 import org.example.task.dtos.TaskActionCreateDto
 import org.example.task.dtos.TaskCreateRequest
+import org.example.task.dtos.TaskEventDto
 import org.example.task.dtos.TaskResponse
+import org.example.task.dtos.TaskShortInfoDto
 import org.example.task.dtos.TaskUpdateRequest
 import org.example.task.dtos.TransferTaskCheckDto
 import org.springframework.data.domain.Page
@@ -54,6 +57,7 @@ class TaskServiceImpl(
     private val taskAttachRepo: TaskAttachmentRepository,
     private val taskAssignedEmployeeRepo: TaskAssignedEmployeeRepository,
     private val security: SecurityUtil,
+    private val taskEventPro: TaskEventProducer,
 
     private val attachClient: AttachClient,
     private val projectClient: ProjectClient,
@@ -124,14 +128,15 @@ class TaskServiceImpl(
                 taskAttachRepo.saveAll(savingTaskAttach)
             }
         try {
-            notificationClient.createAction(TaskActionCreateDto(
-                savedTask.id!!,
-                currentUserId,
-                ActionType.CREATED,
-            ))
-        }catch (e: FeignClientException){
-            logger.error {"Notification not sent but created task"}
-            throw e
+            val event = TaskEventDto(
+                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title),
+                userId = currentUserId,
+                action = ActionType.CREATED
+            )
+
+            taskEventPro.sendTaskEvent(event)
+        }catch (e: Exception){
+            logger.error {"Error from kafka $e"}
         }
         }catch (e: FeignClientException){
             throw e
