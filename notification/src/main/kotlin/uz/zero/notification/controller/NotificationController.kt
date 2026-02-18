@@ -12,6 +12,5 @@ import uz.zero.notification.dtos.TaskActionCreateDto
 class InternalNotificationController(
     private val service: TaskActionService
 ) {
-    @PostMapping("/create-action")
-    fun createAction(@RequestBody taskActionCreate: TaskActionCreateDto) = service.create(taskActionCreate)
+
 }
