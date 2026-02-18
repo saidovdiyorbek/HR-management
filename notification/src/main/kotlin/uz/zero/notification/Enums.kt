@@ -37,3 +37,7 @@ enum class ActionType{
     COMMENT_ADDED,
     DELETED
 }
+
+enum class NotificationStatus {
+    PENDING, SENT, FAILED
+}
