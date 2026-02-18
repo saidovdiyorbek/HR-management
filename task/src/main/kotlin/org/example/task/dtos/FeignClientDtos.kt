@@ -32,7 +32,9 @@ data class CheckUsersInOrganizationRequest(
 )
 
 data class CurrentOrganizationResponse(
-    val organizationId: Long
+    val organizationId: Long,
+    val employeeId: Long,
+    val userId: Long,
 )
 
 data class StateShortInfoDto(
