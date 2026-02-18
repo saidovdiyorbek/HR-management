@@ -74,7 +74,8 @@ class UserService(
             return UserShortInfo(
                 user.id!!,
                 user.telegramChatId,
-                user.username
+                user.username,
+                user.fullName,
             )
         }
         throw UserNotFoundException()
