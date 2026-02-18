@@ -8,9 +8,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.Table
 import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
 import org.hibernate.annotations.ColumnDefault
+import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
@@ -56,4 +58,21 @@ class TaskAction(
     val type: ActionType,
     @Column(columnDefinition = "TEXT")
     val details: String? = null,
+) : BaseEntity()
+
+@Entity
+@Table(name = "notification_logs")
+data class NotificationLog(
+
+    @Column(nullable = false)
+    val userId: Long,
+
+    @Column(nullable = false)
+    val taskId: Long,
+
+    @Column(columnDefinition = "TEXT")
+    val message: String,
+
+    @Enumerated(EnumType.STRING)
+    var status: NotificationStatus,
 ) : BaseEntity()
