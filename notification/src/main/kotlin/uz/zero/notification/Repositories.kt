@@ -59,7 +59,8 @@ interface HashRepository : BaseRepository<Hash> {
 }
 
 interface UserTelegramRepository : BaseRepository<UserTelegram> {
-    fun findByUserIdAndDeletedIsFalse(userId: Long) :UserTelegram?
+    fun findByUserIdAndDeletedIsFalse(userId: Long): UserTelegram?
+    fun findByChatId(chatId: Long): UserTelegram?
 }
 
 interface UserNotificationRepository:BaseRepository<UserNotification>{
