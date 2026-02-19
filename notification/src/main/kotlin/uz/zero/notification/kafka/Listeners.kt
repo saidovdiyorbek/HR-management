@@ -1,15 +1,8 @@
-package uz.zero.notification.listeners
+package uz.zero.notification.kafka
 
-import org.springframework.context.event.EventListener
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import uz.zero.notification.AuthUserClient
-import uz.zero.notification.NotConnectedTelegramBotException
 import uz.zero.notification.TaskActionService
-import uz.zero.notification.TelegramFeignClient
-import uz.zero.notification.dtos.SendMessageRequest
-import uz.zero.notification.dtos.TaskActionEvent
 import uz.zero.notification.dtos.TaskEventDto
 
 @Component

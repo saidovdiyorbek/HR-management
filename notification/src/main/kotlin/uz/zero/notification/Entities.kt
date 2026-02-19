@@ -15,6 +15,7 @@ import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
 import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.CreationTimestamp
+import org.springframework.boot.context.properties.bind.DefaultValue
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
@@ -61,17 +62,17 @@ class Hash(
 class Notification(
     var companyId: Long,
     var companyName: String,
-    var projectId: Long,
+    var projectId: Long?,
     var projectName: String,
-    var taskId: Long,
-    var taskName: String,
+    var taskId: Long?,
+    var taskName: String? = null,
     var actionType: ActionType,
-    var actionByName: String,
-    var actionById: Long,
-    var message: String,
+    var message: String? = null,
     var fromTaskId: Long? = null,
+    var fromTaskName: String? = null,
     var toTaskId: Long? = null,
-    var url: String,
+    var toTaskName: String? = null,
+    var url: String? = null,
 ) : BaseEntity()
 
 @Entity
@@ -79,7 +80,8 @@ class Notification(
 class UserNotification(
     @ManyToOne var userTelegram: UserTelegram,
     @ManyToOne var notification: Notification,
-    @Column(nullable = false) @ColumnDefault(value = "false") var isSend: Boolean
+    @Enumerated(EnumType.STRING)
+    var status: NotificationStatus = NotificationStatus.PENDING
 ) : BaseEntity()
 
 /*@Entity

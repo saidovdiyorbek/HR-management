@@ -8,5 +8,4 @@ data class UserInfoResponse(
     val fullName: String? = null,
     val username: String,
     val role: String,
-    val telegramChatId: Long? = null,
 )

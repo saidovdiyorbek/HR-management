@@ -1,69 +1,35 @@
 package uz.zero.notification.bot
 
+import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
-class BotMessage(
+@Component
+class BotMessage {
 
-) {
-    fun create( date: LocalDateTime,
-               organizationName: String,
-               projectName: String,
-               actionOwner: String,
-               title: String,
-               taskUrl: String): String {
+
+    fun buildMessage(
+        date: LocalDateTime,
+        organizationName: String,
+        projectName: String,
+        actionOwner: String,
+        title: String?,
+        taskUrl: String,
+        lines: List<String>,
+    ): String {
+        val statusLines = lines.mapIndexed { index, line ->
+            if (lines.size > 1) "📊 Holat ${index + 1}: $line"
+            else "📊 Holat: $line"
+        }.joinToString("\n")
+
         return """
-            📋 <b>Topshiriq yaratildi:</b>
+            📋 <b>Topshiriq yangilandi:</b>
             
             🕐 $date
-            🏢 Tashkilot nomi: $organizationName
-            📁 Loyiha nomi: $projectName
+            🏢 Tashkilot: $organizationName
+            📁 Loyiha: $projectName
             🧑‍💼 Harakat egasi: $actionOwner
             📝 Sarlavha: $title
-            📊 Holat: Task yaratildi
-            🔗 <a href="$taskUrl">Topshiriqni ochish</a>
-        """.trimIndent()
-    }
-
-    fun changeTaskState(date: LocalDateTime,
-                        organizationName: String,
-                        projectName: String,
-                        actionOwner: String,
-                        title: String,
-                        fromState: String,
-                        toState: String,
-                        taskUrl: String) : String {
-
-        return """
-            📋 <b>Topshiriqning holati o'zgartirildi:</b>
-            
-            🕐 $date
-            🏢 Tashkilot nomi: $organizationName
-            📁 Loyiha nomi: $projectName
-            🧑‍💼 Harakat egasi: $actionOwner
-            📝 Sarlavha: $title
-            📊 Holat: $fromState >> $toState
-            🔗 <a href="$taskUrl">Topshiriqni ochish</a>
-        """.trimIndent()
-    }
-
-    fun changeTaskTitle(date: LocalDateTime,
-                        organizationName: String,
-                        projectName: String,
-                        actionOwner: String,
-                        fromTitle: String,
-                        toTitle: String,
-                        state: String,
-                        taskUrl: String) : String {
-
-        return """
-            📋 <b>Topshiriqning sarlavhasi o'zgartirildi:</b>
-            
-            🕐 $date
-            🏢 Tashkilot nomi: $organizationName
-            📁 Loyiha nomi: $projectName
-            🧑‍💼 Harakat egasi: $actionOwner
-            📝 Sarlavha: $fromTitle >>> $toTitle
-            📊 Holat: $state
+            $statusLines
             🔗 <a href="$taskUrl">Topshiriqni ochish</a>
         """.trimIndent()
     }

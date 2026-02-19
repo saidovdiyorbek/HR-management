@@ -58,7 +58,7 @@ class ProjectControllers(
 
 
 @RestController
-@RequestMapping("/projects/boards")
+@RequestMapping("projects/boards")
 class BoardController(
     private val service: BoardService
 ) {
@@ -66,7 +66,7 @@ class BoardController(
     @PostMapping
     fun create(@Valid @RequestBody dto: BoardCreateDto) = service.create(dto)
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     fun update(@PathVariable id: Long,@Valid  @RequestBody dto: BoardUpdateDto) = service.update(id, dto)
 
     @DeleteMapping("/{id}")
@@ -139,4 +139,7 @@ class InternalController(
 
     @GetMapping("/get-board-users/{boardId}")
     fun getBoardUsers(@PathVariable boardId: Long) = boardService.boardStateRelationshipsInfo(boardId)
+
+    @GetMapping("/get-project/{boardId}")
+    fun getProjectShortInfoByBoardId(@PathVariable boardId: Long) = boardService.getProjectByBoardId(boardId)
 }
