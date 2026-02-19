@@ -216,9 +216,11 @@ class HashServiceImpl(
 
     override fun checkHashAndReturnUserId(hash: String): Long {
         val entity = repository.findByHashAndDeletedFalse(hash)
-        if (entity == null || entity.expriTime.isBefore(java.time.LocalDateTime.now())) {
+        if (entity == null || entity.expriTime.isBefore(java.time.LocalDateTime.now()) || entity.isUsed) {
             throw HashNotValidException()
         }
+        entity.isUsed = true
+        repository.save(entity)
         return entity.userId
     }
 
@@ -240,22 +242,32 @@ class UserTelegramImpl(
     val hashService: HashService,
 ) : UserTelegramService {
     override fun createOrUpdate(hash: String, from: User) {
-        val userId= hashService.checkHashAndReturnUserId(hash)
-        var user = repository.findByUserIdAndDeletedIsFalse(userId)
+        val userId = hashService.checkHashAndReturnUserId(hash)
 
-        if(user == null) {
-            user = UserTelegram(
+        val existingByChatId = repository.findByChatId(from.id)
+        val existingByUserId = repository.findByUserIdAndDeletedIsFalse(userId)
+
+        val user = when {
+            existingByChatId != null -> existingByChatId.apply {
+                this.userId = userId
+                this.firstName = from.firstName
+                this.lastName = from.lastName
+                this.username = from.userName
+                this.deleted = false
+            }
+            existingByUserId != null -> existingByUserId.apply {
+                this.chatId = from.id
+                this.firstName = from.firstName
+                this.lastName = from.lastName
+                this.username = from.userName
+            }
+            else -> UserTelegram(
                 chatId = from.id,
                 firstName = from.firstName,
                 lastName = from.lastName,
                 username = from.userName,
                 userId = userId
             )
-        }else{
-            user.chatId = from.id
-            user.firstName = from.firstName
-            user.lastName = from.lastName
-            user.username = from.userName
         }
 
         repository.save(user)
