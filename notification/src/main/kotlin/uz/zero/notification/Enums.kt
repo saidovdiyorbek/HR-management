@@ -33,10 +33,7 @@ enum class EmployeeRole {
 
 enum class ActionType{
     CREATED,
-    MOVED,
-    STATUS_CHANGED,
-    COMMENT_ADDED,
-    DELETED
+    UPDATED,
 }
 
 enum class NotificationStatus {

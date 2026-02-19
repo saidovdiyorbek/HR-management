@@ -3,10 +3,9 @@ package uz.zero.notification
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uz.zero.notification.services.HashService
 
 @RestController
-@RequestMapping("/notification")
+@RequestMapping("/notifications")
 class HashController(
     val hashService: HashService
 ) {

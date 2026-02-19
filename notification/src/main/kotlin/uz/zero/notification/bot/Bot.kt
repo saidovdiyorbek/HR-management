@@ -3,31 +3,26 @@ package uz.zero.notification.bot
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
-import uz.zero.notification.services.UserTelegramService
+import uz.zero.notification.UserTelegramService
 
 @Component
-class Bot (
+class Bot(
     private val botProperties: BotProperties,
-    private val userTelegramService: UserTelegramService
+    private val userTelegramService: UserTelegramService,
+) : TelegramLongPollingBot(botProperties.token) {
 
-    ): TelegramLongPollingBot(botProperties.token) {
     override fun onUpdateReceived(update: Update?) {
-        update?.let {
-            val message = it.message
-            val text = message.text
+        val message = update?.message ?: return
+        val text = message.text ?: return
+        val from = message.from ?: return
 
-            val parts = text.split(" ")
+        val parts = text.trim().split(" ")
 
-            if (parts.size > 1) {
-                val hash = parts[1]
-                userTelegramService.createOrUpdate(hash, message.from)
-
-            }
+        if (parts.size > 1 && parts[0] == "/start") {
+            val hash = parts[1].trim()
+            userTelegramService.createOrUpdate(hash, from)
         }
     }
 
-    override fun getBotUsername(): String? {
-        return botProperties.username
-    }
+    override fun getBotUsername(): String = botProperties.username
 }
-

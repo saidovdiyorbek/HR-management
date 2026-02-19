@@ -14,8 +14,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
-import uz.zero.notification.services.HashService
-import java.util.UUID
 
 @NoRepositoryBean
 interface BaseRepository<T : BaseEntity> : JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
@@ -51,7 +49,9 @@ class BaseRepositoryImpl<T : BaseEntity>(
 
 
 @Repository
-interface NotificationRepository : BaseRepository<NotificationLog>
+interface NotificationRepository : BaseRepository<Notification>{
+
+}
 
 interface HashRepository : BaseRepository<Hash> {
     fun findByHashAndDeletedFalse(hash: String): Hash?
@@ -60,4 +60,8 @@ interface HashRepository : BaseRepository<Hash> {
 
 interface UserTelegramRepository : BaseRepository<UserTelegram> {
     fun findByUserIdAndDeletedIsFalse(userId: Long) :UserTelegram?
+}
+
+interface UserNotificationRepository:BaseRepository<UserNotification>{
+
 }

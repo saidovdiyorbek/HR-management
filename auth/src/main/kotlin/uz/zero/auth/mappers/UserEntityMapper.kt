@@ -20,7 +20,6 @@ class UserEntityMapper(
             fullName = user.fullName,
             username = user.username,
             role = user.role.name,
-            telegramChatId = user.telegramChatId,
         )
     }
 
@@ -31,16 +30,16 @@ class UserEntityMapper(
             fullName = user.fullName,
             role = user.role.name,
             status = user.status,
-            telegramChatId = user.telegramChatId
         )
     }
 
     fun toEntity(request: UserCreateRequest, role: Role) = request.run {
-        User(fullName = fullName,
+        User(
+            fullName = fullName,
             username = username,
             password = passwordEncoder.encode(password),
             role = role,
             status = UserStatus.ACTIVE,
-            telegramChatId = telegramChatId,)
+        )
     }
 }

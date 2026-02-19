@@ -13,5 +13,4 @@ class User(
     @Column(nullable = false)var password: String,
     @Enumerated(EnumType.STRING) var status: UserStatus,
     @Enumerated(EnumType.STRING) var role: Role,
-    val telegramChatId: Long? = null,
 ) : BaseEntity()

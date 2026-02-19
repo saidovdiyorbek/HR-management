@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import uz.zero.notification.dtos.CurrentOrganizationResponse
 import uz.zero.notification.dtos.OrganizationInfo
+import uz.zero.notification.dtos.ProjectShortInfo
 import uz.zero.notification.dtos.SendMessageRequest
 import uz.zero.notification.dtos.UserShortInfo
 
@@ -42,4 +43,11 @@ interface OrganizationClient {
 
     @GetMapping("/get-organization-info/{userId}")
     fun getOrganizationInfo(@PathVariable userId: Long): OrganizationInfo
+}
+
+@FeignClient(name = "project-service", url = "\${services.hosts.project}/internal/api/v1/projects" , configuration = [FeignOAuth2TokenConfig::class])
+interface ProjectClient {
+
+    @GetMapping("/get-project/{boardId}")
+    fun getProjectShortInfoByBoardId(@PathVariable boardId: Long) : ProjectShortInfo
 }

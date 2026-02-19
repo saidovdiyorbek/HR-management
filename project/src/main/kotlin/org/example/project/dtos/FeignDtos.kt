@@ -55,3 +55,9 @@ data class BoardInfoDto(
 data class CheckResponse(
     val organizationId: Long
 )
+
+data class ProjectShortInfo(
+    val projectId: Long?,
+    val projectName: String,
+    val board: BoardInfoDto,
+)

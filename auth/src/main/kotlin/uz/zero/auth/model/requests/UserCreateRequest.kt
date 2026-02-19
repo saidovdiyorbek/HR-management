@@ -24,5 +24,4 @@ data class  UserCreateRequest(
     )
     val password: String,
     @field:Size(max = 255) val fullName: String,
-    val telegramChatId: Long? = null,
 )

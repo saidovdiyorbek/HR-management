@@ -42,6 +42,7 @@ import org.example.project.dtos.BoardUpdateDto
 import org.example.project.dtos.BoardUserRequestDto
 import org.example.project.dtos.CheckResponse
 import org.example.project.dtos.CheckUsersInOrganizationRequest
+import org.example.project.dtos.ProjectShortInfo
 import org.example.project.dtos.RelationshipsCheckDto
 import org.example.project.dtos.RequestEmployeeRole
 import org.example.project.dtos.StatePositionUpdateDto
@@ -57,12 +58,13 @@ interface BoardService {
     fun getById(id: Long): BoardFullResponseDto
     fun getAll(pageable: Pageable): Page<BoardShortResponseDto>
     fun checkRelationships(body: RelationshipsCheckDto): CheckResponse
-    fun assignUsersToBoard(boardId: Long, dto : AssignUsersToBoardDto)
+    fun assignUsersToBoard(boardId: Long, dto: AssignUsersToBoardDto)
     fun checkBoardUserRelationships(body: BoardUserRequestDto): Boolean
     fun removeStatesFromBoard(boardId: Long, stateId: Long)
     fun addStatesToBoard(boardId: Long, states: List<Long>)
-    fun boardStateRelationshipsInfo(boardId:Long) : BoardInfoDto
+    fun boardStateRelationshipsInfo(boardId: Long): BoardInfoDto
     fun updateStatePositions(boardId: Long, stateUpdate: StatePositionUpdateDto)
+    fun getProjectByBoardId(boardId: Long): ProjectShortInfo
 }
 
 @Service
@@ -84,9 +86,8 @@ class BoardServiceImpl(
     override fun create(dto: BoardCreateDto) {
         val project = projectRepository.findByIdAndDeletedFalse(dto.projectId)
             ?: throw ProjectNotFoundException()
-        if(project.endDate != null) {
-            throw ProjectEndException()
-        }
+
+        project.endDate?.let { throw ProjectEndException() }
 
         testNameIsUniqueInProject(dto.name, project)
 
@@ -98,7 +99,6 @@ class BoardServiceImpl(
         saveAllToBoardTaskState(dto, board)
 
     }
-
 
 
     @Transactional
@@ -130,15 +130,15 @@ class BoardServiceImpl(
 
     override fun getAll(pageable: Pageable): Page<BoardShortResponseDto> {
         try {
-            val org=organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
+            val org = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId())
             val role = employeeClient.getEmployeeRoleByUserId(
                 securityUtil.getCurrentUserId(),
                 RequestEmployeeRole(securityUtil.getCurrentUserId(), org.organizationId)
             )
-            if(role.employeeRole != EmployeeRole.CEO){
+            if (role.employeeRole != EmployeeRole.CEO) {
                 throw UserNotCEOException()
             }
-        }catch (e: FeignClientException){
+        } catch (e: FeignClientException) {
             throw e
         }
 
@@ -147,18 +147,18 @@ class BoardServiceImpl(
 
 
     override fun checkRelationships(body: RelationshipsCheckDto): CheckResponse {
-        repository.findByIdAndDeletedFalse(body.boardId)?.let{ board ->
+        repository.findByIdAndDeletedFalse(body.boardId)?.let { board ->
             projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
                 if (project.endDate != null) {
                     throw ProjectEndException()
                 }
-                if(!project.isActive){
+                if (!project.isActive) {
                     throw ProjectIsNotActiveException()
                 }
-                val stateOrder =taskStateRepository.findTaskStateWithPosition(body.stateId, body.boardId)
-                    ?:throw StateNotConnnectedToBoardException()
+                val stateOrder = taskStateRepository.findTaskStateWithPosition(body.stateId, body.boardId)
+                    ?: throw StateNotConnnectedToBoardException()
 
-                if(stateOrder.position !=1){
+                if (stateOrder.position != 1) {
                     throw StateIsNotFirstException()
                 }
                 return CheckResponse(project.organizationId)
@@ -168,18 +168,23 @@ class BoardServiceImpl(
         throw ProjectNotFoundException()
     }
 
-    override fun assignUsersToBoard(boardId: Long,  dto : AssignUsersToBoardDto) {
+    override fun assignUsersToBoard(boardId: Long, dto: AssignUsersToBoardDto) {
         val board = repository.findByIdAndDeletedFalse(boardId)
             ?: throw BoardNotFoundException()
 
-        employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(board.project.organizationId, dto.userIds))
+        employeeClient.checkUsersInOrganization(
+            CheckUsersInOrganizationRequest(
+                board.project.organizationId,
+                dto.userIds
+            )
+        )
 
         testIsUserCeoInThisCompany(board.project)
 
         dto.userIds.forEach { userId ->
             if (!boardUserRepository.existsByBoardIdAndUserIdAndDeletedFalse(boardId, userId)) {
                 boardUserRepository.save(BoardUser(board, userId))
-            }else{
+            } else {
                 throw UserAlreadyAssignedToBoardException()
             }
         }
@@ -187,12 +192,12 @@ class BoardServiceImpl(
     }
 
     override fun checkBoardUserRelationships(body: BoardUserRequestDto): Boolean {
-        repository.findByIdAndDeletedFalse(body.boardId)?.let{ board ->
+        repository.findByIdAndDeletedFalse(body.boardId)?.let { board ->
             projectRepository.findByIdAndDeletedFalse(board.project.id!!)?.let { project ->
                 if (project.endDate != null) {
                     throw ProjectEndException()
                 }
-                if(!project.isActive){
+                if (!project.isActive) {
                     throw ProjectIsNotActiveException()
                 }
                 val assignedUsers = boardUserRepository.findByBoardIdAndDeletedFalse(body.boardId).map { it.userId }
@@ -205,7 +210,6 @@ class BoardServiceImpl(
         }
         throw ProjectNotFoundException()
     }
-
 
 
     override fun removeStatesFromBoard(boardId: Long, stateId: Long) {
@@ -316,6 +320,16 @@ class BoardServiceImpl(
         }
     }
 
+    override fun getProjectByBoardId(boardId: Long): ProjectShortInfo {
+        val board = repository.findByIdAndDeletedFalse(boardId)
+
+        return ProjectShortInfo(
+            board?.project?.id,
+            board?.project?.name ?: throw ProjectNotFoundException(),
+            boardStateRelationshipsInfo(boardId)
+        )
+    }
+
 
     private fun saveAllToBoardTaskState(dto: BoardCreateDto, board: Board) {
         val statesToLink = mutableListOf<BoardTaskStateDefinitionDto>()
@@ -331,12 +345,11 @@ class BoardServiceImpl(
         dto: BoardCreateDto,
         statesToLink: MutableList<BoardTaskStateDefinitionDto>
     ) {
-        if (dto.states != null) {
+        dto.states?.let {
             dto.states.let { statesToLink.addAll(it) }
-        } else {
-
+        } ?: run {
             dto.templateId?.let { tid ->
-                templateRepository.findByIdAndDeletedFalse(tid)?: throw TemplateNotFoundException()
+                templateRepository.findByIdAndDeletedFalse(tid) ?: throw TemplateNotFoundException()
                 val items = templateItemRepository.findAllByTemplateIdAndDeletedFalse(tid)
                     ?: throw TemplateNotFoundException()
 
@@ -376,7 +389,7 @@ class BoardServiceImpl(
             val taskState = taskStateRepository.findByIdAndDeletedFalse(stateDef.stateId)
                 ?: throw TaskStateNotFoundException()
 
-            if(boardTaskStateRepository.existsByBoardAndTaskStateAndDeletedFalse(board, taskState)){
+            if (boardTaskStateRepository.existsByBoardAndTaskStateAndDeletedFalse(board, taskState)) {
                 throw StateAlreadyConnectedBoardException()
             }
 

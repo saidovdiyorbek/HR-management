@@ -73,7 +73,6 @@ class UserService(
         userRepository.findByIdAndDeletedFalse(userId)?.let { user ->
             return UserShortInfo(
                 user.id!!,
-                user.telegramChatId,
                 user.username,
                 user.fullName,
             )
