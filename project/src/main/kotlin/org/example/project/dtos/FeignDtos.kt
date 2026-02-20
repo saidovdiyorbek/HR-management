@@ -13,6 +13,7 @@ data class CurrentUserOrganizationDto(
 data class RelationshipsCheckDto(
     val boardId: Long,
     val stateId: Long,
+    val isUpdate: Boolean = false,
 )
 
 data class TransferTaskCheckDto(

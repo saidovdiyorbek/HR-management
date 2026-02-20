@@ -9,6 +9,7 @@ import org.example.task.Permission
 data class RelationshipsCheckDto(
     val boardId: Long,
     val stateId: Long,
+    val isUpdate: Boolean = false,
 )
 data class InternalHashesCheckRequest(
     val userId: Long,
