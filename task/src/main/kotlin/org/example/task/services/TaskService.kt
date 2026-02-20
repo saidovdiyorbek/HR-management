@@ -276,9 +276,9 @@ class TaskServiceImpl(
                             )
                         )
                         if (checkTransferStates){
-                            task.stateId = stateId
                             eventDto.actionDetails?.fromState = task.stateId
-                            eventDto.actionDetails?.toState = task.stateId
+                            eventDto.actionDetails?.toState = dto.stateId
+                            task.stateId = stateId
                         }
                     }
 

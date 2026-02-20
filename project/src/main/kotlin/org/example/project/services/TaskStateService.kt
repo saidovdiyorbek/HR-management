@@ -34,6 +34,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.abs
 
 interface TaskStateService {
 
@@ -46,7 +47,7 @@ interface TaskStateService {
     fun getTaskStateWithPosition(stateId: Long, boardId: Long): TaskStateWithPositionDto
     fun getAllByBoard(boardId: Long, pageable: Pageable): Page<TaskStateShortResponseDto>
     fun transferTaskCheck(dto: TransferTaskCheckDto): Boolean
-    
+
     fun createTemplate(dto: TaskStateTemplateCreateDto)
     fun getTemplates(): List<TaskStateTemplateResponseDto>
     fun createDefaultStates(organizationId: Long): List<TaskState>
@@ -136,13 +137,13 @@ class TaskStateServiceImpl(
         if(to.permission !=dto.permission) {
             throw NotPermitedToTransferTaskException()
         }
-        if(from.position+1 != to.position){
+        if(abs(from.position - to.position) !=  1 ){
             throw OrdersOfStatesIsIncorrectException()
         }
 
         return true
     }
-    
+
     @Transactional
     override fun createTemplate(dto: TaskStateTemplateCreateDto) {
         val organizationId = organizationClient.getCurrentUserOrganization(securityUtil.getCurrentUserId()).organizationId
@@ -161,9 +162,9 @@ class TaskStateServiceImpl(
 
         val template = TaskStateTemplate(dto.name, organizationId)
         templateRepository.save(template)
-        
+
         dto.states.forEach { itemDto ->
-            val state = repository.findByIdAndDeletedFalse(itemDto.taskStateId) 
+            val state = repository.findByIdAndDeletedFalse(itemDto.taskStateId)
                 ?: throw TaskStateNotFoundException()
             val item = TaskStateTemplateItem(template, state, itemDto.position)
             templateItemRepository.save(item)
@@ -192,7 +193,7 @@ class TaskStateServiceImpl(
     override fun createDefaultStates(organizationId: Long): List<TaskState> {
         val existing = repository.findByOrganizationIdAndDeletedFalse(organizationId, Pageable.unpaged())
         if (!existing.isEmpty) return existing.content
-        
+
         val defaults = listOf(
             TaskState("To Do", "Default To Do State", Permission.ASSIGNED, organizationId),
             TaskState("In Progress", "Default In Progress State", Permission.ASSIGNED, organizationId),
