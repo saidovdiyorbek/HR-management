@@ -25,6 +25,7 @@ import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
 import org.example.task.ThisTaskIsNotYoursExceptions
+import org.example.task.dtos.ActionDetails
 import org.example.task.dtos.CheckUsersInOrganizationRequest
 import org.example.task.dtos.InternalHashesCheckRequest
 import org.example.task.dtos.RelationshipsCheckDto
@@ -97,10 +98,12 @@ class TaskServiceImpl(
                 createUserId = currentUserId,
                 currentOrganizationId = currentOrganizationByUserId.organizationId
             ))
+            val notificationsEmployees : MutableList<Long> = mutableListOf(currentUserId)
             val event = TaskEventDto(
-                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title),
+                task = TaskShortInfoDto(savedTask.id, savedTask.boardId, savedTask.title,notificationsEmployees),
                 userId = currentUserId,
                 action = ActionType.CREATED,
+                actionDetails = ActionDetails()
             )
             dto.assigningEmployeesId?.let { assigningEmployeesId ->
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
