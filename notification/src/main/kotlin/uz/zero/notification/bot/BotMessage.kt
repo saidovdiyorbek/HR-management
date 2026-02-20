@@ -17,20 +17,27 @@ class BotMessage {
         lines: List<String>,
     ): String {
         val statusLines = lines.mapIndexed { index, line ->
-            if (lines.size > 1) "📊 Holat ${index + 1}: $line"
-            else "📊 Holat: $line"
+            if (lines.size > 1) "📊 Holat ${index + 1}: ${line.escapeHtml()}"
+            else "📊 Holat: ${line.escapeHtml()}"
         }.joinToString("\n")
 
         return """
             📋 <b>Topshiriq yangilandi:</b>
             
             🕐 $date
-            🏢 Tashkilot: $organizationName
-            📁 Loyiha: $projectName
-            🧑‍💼 Harakat egasi: $actionOwner
-            📝 Sarlavha: $title
+            🏢 Tashkilot: ${organizationName.escapeHtml()}
+            📁 Loyiha: ${projectName.escapeHtml()}
+            🧑‍💼 Harakat egasi: ${actionOwner.escapeHtml()}
+            📝 Sarlavha: ${title?.escapeHtml() ?: "-"}
             $statusLines
             🔗 <a href="$taskUrl">Topshiriqni ochish</a>
         """.trimIndent()
+    }
+
+    private fun String.escapeHtml(): String {
+        return this.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
     }
 }
