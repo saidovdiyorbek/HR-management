@@ -243,7 +243,7 @@ class TaskServiceImpl(
             )
                 val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
                     RelationshipsCheckDto(
-                        task.boardId, dto.stateId?.let { it } as Long
+                        task.boardId, dto.stateId?.let { it } as Long, true
                     )
                 )
                 val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
