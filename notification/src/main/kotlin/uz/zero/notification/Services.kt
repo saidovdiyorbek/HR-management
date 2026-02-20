@@ -1,5 +1,6 @@
 package uz.zero.notification
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -13,6 +14,7 @@ import uz.zero.notification.dtos.TaskEventDto
 import uz.zero.notification.dtos.UserShortInfo
 import java.time.LocalDateTime
 
+private val logger = KotlinLogging.logger {}
 
 interface TaskActionService {
     fun processTaskEvent(event: TaskEventDto)
@@ -32,23 +34,32 @@ class TaskActionServiceImpl(
 ) : TaskActionService {
 
     override fun processTaskEvent(event: TaskEventDto) {
+        logger.info { "📩 Kafka event keldi: action=${event.action}, taskId=${event.task.taskId}, userId=${event.userId}" }
 
         val user = try {
             authUserClient.getUserShortInfo(event.userId)
-        } catch (e: FeignClientException) {
-            throw e
+        } catch (e: Exception) {
+            logger.error { "❌ AuthUserClient xatosi: $e" }
+            null
         }
 
         val organization = try {
             organizationClient.getOrganizationInfo(event.userId)
-        } catch (e: FeignClientException) {
-            throw e
+        } catch (e: Exception) {
+            logger.error { "❌ OrganizationClient xatosi: $e" }
+            null
         }
 
         val project = try {
             projectClient.getProjectShortInfoByBoardId(event.task.boardId)
-        } catch (e: FeignClientException) {
-            throw e
+        } catch (e: Exception) {
+            logger.error { "❌ ProjectClient xatosi: $e" }
+            null
+        }
+
+        if (user == null || organization == null || project == null) {
+            logger.warn { "⚠️ Tashqi servislardan ma'lumot olinmadi. Notification saqlanmaydi." }
+            return
         }
 
         when (event.action) {
@@ -167,7 +178,7 @@ class TaskActionServiceImpl(
                 val sendMessage = SendMessage()
                 sendMessage.chatId = userTelegram.chatId.toString()
                 sendMessage.text = text
-                sendMessage.parseMode = "HTML"
+                sendMessage.parseMode = org.telegram.telegrambots.meta.api.methods.ParseMode.HTML
                 bot.execute(sendMessage)
                 NotificationStatus.SENT
             } catch (e: Exception) {

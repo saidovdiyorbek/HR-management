@@ -93,6 +93,8 @@ interface EmployeeRepository : BaseRepository<Employee> {
         userIds: List<Long>
     ): Long
 
+    fun findByUserIdAndDeletedFalse(userId: Long) : Employee?
+
 
 }
 

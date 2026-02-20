@@ -12,13 +12,14 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
-
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 class ResourceServerConfig(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val internalApiFilter: InternalApiFilter
 ) {
 
     @Bean
@@ -28,6 +29,7 @@ class ResourceServerConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .addFilterBefore(internalApiFilter, BearerTokenAuthenticationFilter::class.java)
             .authorizeHttpRequests {
                 it.requestMatchers("/error").permitAll()
                     .requestMatchers("/actuator/**").permitAll()

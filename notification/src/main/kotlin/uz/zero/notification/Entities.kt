@@ -53,6 +53,7 @@ class Hash(
     @Column(unique = true, nullable = false) var hash: String,
     var userId: Long,
     @Column(nullable = false) var expriTime: LocalDateTime,
+    @Column(columnDefinition = "TEXT")
     var url: String,
     var isUsed: Boolean = false
 ) : BaseEntity()
@@ -65,13 +66,19 @@ class Notification(
     var projectId: Long?,
     var projectName: String,
     var taskId: Long?,
+    @Column(columnDefinition = "TEXT")
     var taskName: String? = null,
+    @Enumerated(EnumType.STRING)
     var actionType: ActionType,
+    @Column(columnDefinition = "TEXT")
     var message: String? = null,
     var fromTaskId: Long? = null,
+    @Column(columnDefinition = "TEXT")
     var fromTaskName: String? = null,
     var toTaskId: Long? = null,
+    @Column(columnDefinition = "TEXT")
     var toTaskName: String? = null,
+    @Column(columnDefinition = "TEXT")
     var url: String? = null,
 ) : BaseEntity()
 
