@@ -238,10 +238,11 @@ class TaskServiceImpl(
                     assignedEmployeesIds = taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)),
                 userId = currentUserId,
                 action = ActionType.UPDATED,
+                actionDetails = ActionDetails()
             )
                 val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
                     RelationshipsCheckDto(
-                        task.boardId, task.id!!
+                        task.boardId, dto.stateId?.let { it } as Long
                     )
                 )
                 val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
@@ -340,7 +341,8 @@ class TaskServiceImpl(
                         taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
                     ),
                     userId = currentUserId,
-                    action = ActionType.UPDATED
+                    action = ActionType.UPDATED,
+                    actionDetails = ActionDetails()
                 )
                 val employeeRole = employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId,
                     organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
