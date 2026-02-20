@@ -78,6 +78,7 @@ class TaskServiceImpl(
                     dto.boardId, dto.stateId
                 )
             )
+            logger.debug { "boarId: ${dto.boardId} stateId: ${dto.stateId}" }
             val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
 
             if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
