@@ -157,10 +157,12 @@ class BoardServiceImpl(
                 }
                 val stateOrder = taskStateRepository.findTaskStateWithPosition(body.stateId, body.boardId)
                     ?: throw StateNotConnnectedToBoardException()
-
-                if (stateOrder.position != 1) {
-                    throw StateIsNotFirstException()
+                if(!body.isUpdate){
+                    if (stateOrder.position != 1) {
+                        throw StateIsNotFirstException()
+                    }
                 }
+
                 return CheckResponse(project.organizationId)
             }
             throw BoardNotFoundException()
