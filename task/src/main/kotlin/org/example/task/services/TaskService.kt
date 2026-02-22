@@ -21,6 +21,8 @@ import org.example.task.TaskAssignedEmployeeRepository
 import org.example.task.TaskAttachment
 import org.example.task.TaskAttachmentRepository
 import org.example.task.TaskEventProducer
+import org.example.task.TaskHistory
+import org.example.task.TaskHistoryRepository
 import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
@@ -59,6 +61,7 @@ class TaskServiceImpl(
     private val taskAssignedEmployeeRepo: TaskAssignedEmployeeRepository,
     private val security: SecurityUtil,
     private val taskEventPro: TaskEventProducer,
+    private val taskHistoryRepo: TaskHistoryRepository,
 
     private val attachClient: AttachClient,
     private val projectClient: ProjectClient,
@@ -72,6 +75,7 @@ class TaskServiceImpl(
     override fun create(dto: TaskCreateRequest) {
         val currentUserId = security.getCurrentUserId()
 
+        //State ni board ga tegishli ekanligini tekshirish
         try {
             val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
                 RelationshipsCheckDto(
@@ -79,6 +83,7 @@ class TaskServiceImpl(
                 )
             )
             logger.debug { "boarId: ${dto.boardId} stateId: ${dto.stateId}" }
+            //employee ni current organization ini olish
             val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
 
             if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
@@ -106,6 +111,11 @@ class TaskServiceImpl(
                 action = ActionType.CREATED,
                 actionDetails = ActionDetails()
             )
+            val taskHistory = TaskHistory(
+                task = savedTask,
+                changedByEmployeeId = currentUserId,
+                actionType = ActionType.CREATED,
+            )
             dto.assigningEmployeesId?.let { assigningEmployeesId ->
                 if (dto.assigningEmployeesId!!.isNotEmpty()) {
                     employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(currentOrganizationByUserId.organizationId, assigningEmployeesId))
@@ -115,6 +125,7 @@ class TaskServiceImpl(
                     }
                     taskAssignedEmployeeRepo.saveAll(savedAssigningEmployee)
                     event.actionDetails?.addedEmployeeIds = assigningEmployeesId
+                    taskHistory.assignedEmployees = assigningEmployeesId
                 }
             }
 
@@ -139,6 +150,7 @@ class TaskServiceImpl(
                 }
                 taskAttachRepo.saveAll(savingTaskAttach)
                 event.actionDetails?.attachesHashes = attachHashes
+                taskHistory.addedAttaches = attachHashes
             }
 
             try {
@@ -231,6 +243,11 @@ class TaskServiceImpl(
             employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId, organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
             repository.findByIdAndDeletedFalse(id)?.let { task ->
 
+                val taskHistory = TaskHistory(
+                    task = task,
+                    changedByEmployeeId = currentUserId,
+                    actionType = ActionType.UPDATED,
+                )
                 val eventDto = TaskEventDto(
                 task = TaskShortInfoDto(
                     taskId = task.id,
@@ -276,15 +293,20 @@ class TaskServiceImpl(
                             )
                         )
                         if (checkTransferStates){
+                            task.stateId = stateId
                             eventDto.actionDetails?.fromState = task.stateId
                             eventDto.actionDetails?.toState = dto.stateId
-                            task.stateId = stateId
+                            eventDto.actionDetails?.toState = task.stateId
+                            taskHistory.fromStateId = task.stateId
+                            taskHistory.toStateId = stateId
                         }
                     }
 
                     this.title?.let {
+                        taskHistory.oldTitle = task.title
                         task.title = it
                         eventDto.actionDetails?.title = it
+                        taskHistory.newTitle = it
                     }
                     this.description?.let { task.description = it }
                     this.priority?.let { task.priority = it }
@@ -312,11 +334,13 @@ class TaskServiceImpl(
                                 }
                                 taskAttachRepo.saveAll(postAttachesToAdd)
                                 eventDto.actionDetails?.attachesHashes = hashesToAdd
+                                taskHistory.addedAttaches = attachHashes
                             }
                         }
                         return
                     }
                     repository.save(task)
+                    taskHistoryRepo.save(taskHistory)
                     try{ taskEventPro.sendTaskEvent(eventDto) } catch (e: Exception) {
                         logger.error { "Error from kafka $e" }
                     }
