@@ -58,11 +58,16 @@ class TaskAttachment(
 class TaskHistory(
     @ManyToOne
     val task: Task,
-    val fromStateId: Long,
-    val toStateId: Long,
-    val changedByEmployeeId: Long,
+    var fromStateId: Long? = null,
+    var toStateId: Long? = null,
+    var oldTitle: String? = null,
+    var newTitle: String? = null,
+    var addedAttaches: List<String>? = null,
+    var assignedEmployees: List<Long>? = null,
+    var changedByEmployeeId: Long,
+    var actionType: ActionType,
     @Column(columnDefinition = "TEXT")
-    val comments: String,
+    var comments: String? = null,
 ) : BaseEntity()
 
 @Entity
