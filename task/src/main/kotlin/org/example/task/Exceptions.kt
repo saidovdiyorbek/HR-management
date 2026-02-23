@@ -3,7 +3,7 @@ package org.example.task
 import com.fasterxml.jackson.databind.ObjectMapper
 import feign.Response
 import feign.codec.ErrorDecoder
-import org.example.task.dtos.BaseMessage
+import org.example.task.BaseMessage
 import org.springframework.context.MessageSource
 import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder

@@ -39,3 +39,17 @@ fun String.decompress(): String {
 fun username(): String {
     return getUserJwtPrincipal()?.claims?.get(USERNAME_KEY) as String
 }
+
+fun TaskHistory.toResponse() = TaskHistoryResponse(
+    id = this.id ?: 0L,
+    changedByEmployeeId = this.changedByEmployeeId,
+    actionType = this.actionType,
+    details = TaskHistoryDetails(
+        fromStateId = this.fromStateId,
+        toStateId = this.toStateId,
+        oldTitle = this.oldTitle,
+        newTitle = this.newTitle,
+        addedAttaches = this.addedAttaches,
+        assignedEmployees = this.assignedEmployees,
+    )
+)

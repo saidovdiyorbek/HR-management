@@ -1,15 +1,15 @@
 package org.example.task
 
-import org.example.task.dtos.BoardInfoDto
-import org.example.task.dtos.CheckResponse
-import org.example.task.dtos.CheckUsersInOrganizationRequest
-import org.example.task.dtos.CurrentOrganizationResponse
-import org.example.task.dtos.EmployeeRoleResponse
-import org.example.task.dtos.InternalHashesCheckRequest
-import org.example.task.dtos.RelationshipsCheckDto
-import org.example.task.dtos.RequestEmployeeRole
-import org.example.task.dtos.TaskActionCreateDto
-import org.example.task.dtos.TransferTaskCheckDto
+import org.example.task.BoardInfoDto
+import org.example.task.CheckResponse
+import org.example.task.CheckUsersInOrganizationRequest
+import org.example.task.CurrentOrganizationResponse
+import org.example.task.EmployeeRoleResponse
+import org.example.task.InternalHashesCheckRequest
+import org.example.task.RelationshipsCheckDto
+import org.example.task.RequestEmployeeRole
+import org.example.task.TaskActionCreateDto
+import org.example.task.TransferTaskCheckDto
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
