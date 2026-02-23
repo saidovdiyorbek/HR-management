@@ -27,6 +27,9 @@ interface ProjectClient{
 
     @GetMapping("/get-board-users/{boardId}")
     fun getBoardUsers(@PathVariable boardId: Long): BoardInfoDto
+
+    @GetMapping("/get-organization/{boardId}")
+    fun getOrganizationIdByBoardId(@PathVariable boardId: Long): Long
 }
 
 @FeignClient(name = "attach-service", url = "\${services.hosts.attach}/internal/api/v1/attaches", configuration = [FeignOAuth2TokenConfig::class])

@@ -261,14 +261,22 @@ class TaskServiceImpl(
                 action = ActionType.UPDATED,
                 actionDetails = ActionDetails()
             )
-                val checkTaskRelationshipsRes = projectClient.checkTaskRelationships(
-                    RelationshipsCheckDto(
-                        task.boardId, dto.stateId?.let { it } as Long, true
+                val taskOrganization = dto.stateId ?: run {
+                    projectClient.getOrganizationIdByBoardId(task.boardId)
+                }
+
+                val checkTaskRelationshipsRes = dto.stateId?.let{
+                    projectClient.checkTaskRelationships(
+                        RelationshipsCheckDto(
+                            task.boardId, dto.stateId?.let { it } as Long, true
+                        )
                     )
-                )
+                }
+
                 val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
 
-                if (checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId){
+                if (checkTaskRelationshipsRes != null && checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId
+                    || taskOrganization != currentOrganizationByUserId.organizationId){
                     throw SomethingWentWrongException()
                 }
 
