@@ -65,6 +65,7 @@ interface BoardService {
     fun boardStateRelationshipsInfo(boardId: Long): BoardInfoDto
     fun updateStatePositions(boardId: Long, stateUpdate: StatePositionUpdateDto)
     fun getProjectByBoardId(boardId: Long): ProjectShortInfo
+    fun getOrganizationIdByBoardId(boardId: Long): Long
 }
 
 @Service
@@ -330,6 +331,11 @@ class BoardServiceImpl(
             board?.project?.name ?: throw ProjectNotFoundException(),
             boardStateRelationshipsInfo(boardId)
         )
+    }
+
+    override fun getOrganizationIdByBoardId(boardId: Long): Long {
+        val board = repository.findByIdAndDeletedFalse(boardId)
+        return board?.project?.organizationId ?: throw ProjectNotFoundException()
     }
 
 

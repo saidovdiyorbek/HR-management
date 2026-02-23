@@ -142,4 +142,7 @@ class InternalController(
 
     @GetMapping("/get-project/{boardId}")
     fun getProjectShortInfoByBoardId(@PathVariable boardId: Long) = boardService.getProjectByBoardId(boardId)
+
+    @GetMapping("/get-organization/{boardId}")
+    fun getOrganizationIdByBoardId(@PathVariable boardId: Long)=boardService.getOrganizationIdByBoardId(boardId)
 }
