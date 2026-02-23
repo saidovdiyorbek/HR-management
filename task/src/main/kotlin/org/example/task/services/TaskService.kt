@@ -27,18 +27,19 @@ import org.example.task.TaskNotFoundException
 import org.example.task.TaskPriority
 import org.example.task.TaskRepository
 import org.example.task.ThisTaskIsNotYoursExceptions
-import org.example.task.dtos.ActionDetails
-import org.example.task.dtos.CheckUsersInOrganizationRequest
-import org.example.task.dtos.InternalHashesCheckRequest
-import org.example.task.dtos.RelationshipsCheckDto
-import org.example.task.dtos.RequestEmployeeRole
-import org.example.task.dtos.TaskActionCreateDto
-import org.example.task.dtos.TaskCreateRequest
-import org.example.task.dtos.TaskEventDto
-import org.example.task.dtos.TaskResponse
-import org.example.task.dtos.TaskShortInfoDto
-import org.example.task.dtos.TaskUpdateRequest
-import org.example.task.dtos.TransferTaskCheckDto
+import org.example.task.ActionDetails
+import org.example.task.CheckUsersInOrganizationRequest
+import org.example.task.InternalHashesCheckRequest
+import org.example.task.RelationshipsCheckDto
+import org.example.task.RequestEmployeeRole
+import org.example.task.TaskCreateRequest
+import org.example.task.TaskEventDto
+import org.example.task.TaskHistoryResponse
+import org.example.task.TaskResponse
+import org.example.task.TaskShortInfoDto
+import org.example.task.TaskUpdateRequest
+import org.example.task.TransferTaskCheckDto
+import org.example.task.toResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -52,6 +53,7 @@ interface TaskService {
     fun update(id: Long, dto: TaskUpdateRequest)
     fun assignEmployee(id: Long, employees: List<Long>)
     fun unsignEmployee(id: Long, employees: List<Long>)
+    fun getTaskActions(id: Long, pageable: Pageable): Page<TaskHistoryResponse>
 }
 
 @Service
@@ -152,6 +154,7 @@ class TaskServiceImpl(
                 event.actionDetails?.attachesHashes = attachHashes
                 taskHistory.addedAttaches = attachHashes
             }
+            taskHistoryRepo.save(taskHistory)
 
             try {
             taskEventPro.sendTaskEvent(event)
@@ -419,5 +422,16 @@ class TaskServiceImpl(
         }catch (e: FeignClientException){
             throw e
         }
+    }
+
+    override fun getTaskActions(
+        id: Long,
+        pageable: Pageable
+        ): Page<TaskHistoryResponse> {
+        repository.findByIdAndDeletedFalse(id)?.let { task ->
+            val historyPage = taskHistoryRepo.findTaskHistoryByTaskId(task.id!!, pageable)
+            return historyPage.map {it.toResponse()}
+        }
+        throw TaskNotFoundException()
     }
 }

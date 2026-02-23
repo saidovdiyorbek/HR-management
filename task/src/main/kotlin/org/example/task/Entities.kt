@@ -3,6 +3,8 @@ package org.example.task
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -65,6 +67,7 @@ class TaskHistory(
     var addedAttaches: List<String>? = null,
     var assignedEmployees: List<Long>? = null,
     var changedByEmployeeId: Long,
+    @Enumerated(EnumType.STRING)
     var actionType: ActionType,
     @Column(columnDefinition = "TEXT")
     var comments: String? = null,

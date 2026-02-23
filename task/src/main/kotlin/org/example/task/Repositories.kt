@@ -97,7 +97,10 @@ interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
     """)
     fun removeByFileHashList(hashesToRemove: List<String>)
 }
-interface TaskHistoryRepository : BaseRepository<TaskHistory>{}
+interface TaskHistoryRepository : BaseRepository<TaskHistory>{
+
+    fun findTaskHistoryByTaskId(taskId: Long, pageable: Pageable): Page<TaskHistory>
+}
 interface TaskLabelRepository : BaseRepository<TaskLabel>{}
 interface TaskLabelMappingRepository : BaseRepository<TaskLabelMapping>{}
 interface TaskAssignedEmployeeRepository : BaseRepository<TaskAssignedEmployee>{

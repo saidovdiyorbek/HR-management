@@ -1,8 +1,8 @@
 package org.example.task
 
-import org.example.task.dtos.TaskCreateRequest
-import org.example.task.dtos.TaskResponse
-import org.example.task.dtos.TaskUpdateRequest
+import org.example.task.TaskCreateRequest
+import org.example.task.TaskResponse
+import org.example.task.TaskUpdateRequest
 import org.example.task.services.TaskService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -39,4 +39,7 @@ class TaskController(
 
     @PutMapping("/unsign/{id}")
     fun unsignEmployee(@PathVariable id: Long, @RequestBody employees: List<Long>) = service.unsignEmployee(id, employees)
+
+    @GetMapping("/get-task-actions/{id}")
+    fun getTaskActions(@PathVariable id: Long, pageable: Pageable): Page<TaskHistoryResponse> = service.getTaskActions(id, pageable)
 }

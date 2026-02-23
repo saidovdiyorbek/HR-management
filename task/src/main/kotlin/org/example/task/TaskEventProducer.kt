@@ -1,6 +1,6 @@
 package org.example.task
 
-import org.example.task.dtos.TaskEventDto
+import org.example.task.TaskEventDto
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
