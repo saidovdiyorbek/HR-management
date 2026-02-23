@@ -86,7 +86,7 @@ interface TaskAttachmentRepository : BaseRepository<TaskAttachment>{
     fun findTaskAttachmentByTaskId(taskId: Long): List<String>
 
     @Query("""select ta.fileHash  from TaskAttachment ta 
-        where ta.task.id = : id and ta.deleted = false
+        where ta.task.id = :id and ta.deleted = false
     """)
     fun getPostAttachHash(id: Long): List<String>
 
