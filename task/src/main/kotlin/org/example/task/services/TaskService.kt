@@ -261,8 +261,9 @@ class TaskServiceImpl(
                 action = ActionType.UPDATED,
                 actionDetails = ActionDetails()
             )
-                val taskOrganization = dto.stateId ?: run {
-                    projectClient.getOrganizationIdByBoardId(task.boardId)
+                var taskOrganization: Long? = null
+                if(dto.stateId==null) {
+                   taskOrganization =  projectClient.getOrganizationIdByBoardId(task.boardId)
                 }
 
                 val checkTaskRelationshipsRes = dto.stateId?.let{
@@ -276,7 +277,7 @@ class TaskServiceImpl(
                 val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
 
                 if (checkTaskRelationshipsRes != null && checkTaskRelationshipsRes.organizationId != currentOrganizationByUserId.organizationId
-                    || taskOrganization != currentOrganizationByUserId.organizationId){
+                    || (taskOrganization != null && taskOrganization != currentOrganizationByUserId.organizationId)){
                     throw SomethingWentWrongException()
                 }
 
@@ -348,12 +349,13 @@ class TaskServiceImpl(
                                 taskHistory.addedAttaches = attachHashes
                             }
                         }
-                        return
+
                     }
                     repository.save(task)
                     taskHistoryRepo.save(taskHistory)
                     try{ taskEventPro.sendTaskEvent(eventDto) } catch (e: Exception) {
                         logger.error { "Error from kafka $e" }
+                        println("Error from kafka $e")
                     }
                     return
                 }
@@ -382,7 +384,7 @@ class TaskServiceImpl(
                 )
                 val employeeRole = employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId,
                     organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
-                if (task.createUserId != currentUserId || employeeRole != EmployeeRole.CEO){
+                if (task.createUserId != currentUserId && employeeRole != EmployeeRole.CEO){
                     throw ThisTaskIsNotYoursExceptions()
                 }
                 if(employees.isNotEmpty()){

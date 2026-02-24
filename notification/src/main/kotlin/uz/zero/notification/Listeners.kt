@@ -1,9 +1,7 @@
-package uz.zero.notification.kafka
+package uz.zero.notification
 
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import uz.zero.notification.TaskActionService
-import uz.zero.notification.dtos.TaskEventDto
 
 @Component
 class KafkaNotificationListener(
