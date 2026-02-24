@@ -10,8 +10,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.Table
 import jakarta.persistence.Temporal
 import jakarta.persistence.TemporalType
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.ColumnDefault
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
@@ -90,6 +92,12 @@ class TaskLabelMapping(
 ) : BaseEntity()
 
 @Entity
+@Table(uniqueConstraints = [
+    UniqueConstraint(
+        name="uk_user_project",
+        columnNames = ["task_id", "employee_id"],
+    )
+])
 class TaskAssignedEmployee(
     @ManyToOne
     val task: Task,
