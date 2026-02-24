@@ -15,14 +15,15 @@ class BotMessage {
         title: String?,
         taskUrl: String,
         lines: List<String>,
+        headerText: String = "📋 <b>Topshiriq yangilandi:</b>"
     ): String {
         val statusLines = lines.mapIndexed { index, line ->
-            if (lines.size > 1) "📊 Holat ${index + 1}: ${line.escapeHtml()}"
-            else "📊 Holat: ${line.escapeHtml()}"
+            if (lines.size > 1) "📊 Holat ${index + 1}: $line"
+            else "📊 Holat: $line"
         }.joinToString("\n")
 
         return """
-            📋 <b>Topshiriq yangilandi:</b>
+            $headerText
             
             🕐 $date
             🏢 Tashkilot: ${organizationName.escapeHtml()}

@@ -335,6 +335,7 @@ class BoardServiceImpl(
 
     override fun getOrganizationIdByBoardId(boardId: Long): Long {
         val board = repository.findByIdAndDeletedFalse(boardId)
+        print(board?.project?.organizationId)
         return board?.project?.organizationId ?: throw ProjectNotFoundException()
     }
 

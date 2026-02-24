@@ -14,7 +14,6 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import uz.zero.notification.dtos.BaseMessage
 import java.io.IOException
 import java.util.Locale
 import kotlin.collections.toString

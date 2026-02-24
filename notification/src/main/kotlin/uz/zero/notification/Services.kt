@@ -8,10 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.User
 import uz.zero.notification.bot.Bot
 import uz.zero.notification.bot.BotMessage
 import uz.zero.notification.bot.BotProperties
-import uz.zero.notification.dtos.OrganizationInfo
-import uz.zero.notification.dtos.ProjectShortInfo
-import uz.zero.notification.dtos.TaskEventDto
-import uz.zero.notification.dtos.UserShortInfo
 import java.time.LocalDateTime
 
 private val logger = KotlinLogging.logger {}
@@ -30,7 +26,8 @@ class TaskActionServiceImpl(
     private val userTelegramRepository: UserTelegramRepository,
     private val projectClient: ProjectClient,
     private val message: BotMessage,
-    @Value("\${task.url}") val taskUrl: String,
+    @param:Value("\${task.url}") val taskUrl: String,
+    @param:Value("\${attach.url}") val attachUrl: String,
 ) : TaskActionService {
 
     override fun processTaskEvent(event: TaskEventDto) {
@@ -84,6 +81,7 @@ class TaskActionServiceImpl(
             title = event.task.title,
             taskUrl = taskUrl + event.task.taskId,
             lines = listOf("task yaratildi va siz taskka ulandingiz"),
+            headerText = "📋 <b>Yangi topshiriq yaratildi:</b>"
         )
 
         val notification = Notification(
@@ -108,48 +106,65 @@ class TaskActionServiceImpl(
         project: ProjectShortInfo,
     ) {
         val details = event.actionDetails
-        val lines = mutableListOf<String>()
+        val updates = mutableListOf<Pair<String, String>>()
 
         if (details?.fromState != null && details.toState != null) {
             val fromName = project.board.states.find { it.id == details.fromState }?.name ?: "Noma'lum"
             val toName = project.board.states.find { it.id == details.toState }?.name ?: "Noma'lum"
-            lines += "$fromName >> $toName"
+            updates.add(Pair("$fromName >> $toName", "📋 <b>Topshiriq holati o'zgardi:</b>"))
         }
 
         if (details?.title != null) {
-            lines += "sarlavha o'zgartirildi: \"${details.title}\""
+            updates.add(Pair("sarlavha o'zgartirildi: \"${details.title}\"", "📋 <b>Topshiriq nomi o'zgardi:</b>"))
         }
 
         if (details?.attachesHashes != null) {
-            lines += "fayl biriktirildi (${details.attachesHashes!!.size} ta)"
+            val hashes = details.attachesHashes  // local val ga olish
+            val attachesUrls = hashes?.joinToString(", ") { hash ->
+                """<a href="${attachUrl + hash}">Fayl</a>"""
+            }
+
+            updates.add(
+                Pair(
+                    """
+        fayl biriktirildi (${hashes?.size} ta):
+        $attachesUrls
+    """.trimIndent(), "📋 <b>Topshiriqqa fayl biriktirildi:</b>"
+                )
+            )
         }
 
-        if (lines.isEmpty()) lines += "task yangilandi"
-
-        val updateText = message.buildMessage(
-            date = LocalDateTime.now(),
-            organizationName = organization.name,
-            projectName = project.projectName,
-            actionOwner = user.fullName,
-            title = event.task.title,
-            taskUrl = taskUrl + event.task.taskId,
-            lines = lines,
-        )
-
-        val notification = Notification(
-            companyId = organization.id,
-            companyName = organization.name,
-            projectId = project.projectId,
-            projectName = project.projectName,
-            taskId = event.task.taskId,
-            taskName = event.task.title,
-            actionType = ActionType.UPDATED,
-            message = updateText,
-        )
-        val savedNotification = repository.save(notification)
+        /*if (updates.isEmpty()) {
+            updates.add(Pair("task yangilandi", "📋 <b>Topshiriq yangilandi:</b>"))
+        }*/
 
         val assignedIds = event.task.assignedEmployeesIds ?: emptyList()
-        sendToUsers(savedNotification, assignedIds, updateText)
+
+        for ((line, headerText) in updates) {
+            val updateText = message.buildMessage(
+                date = LocalDateTime.now(),
+                organizationName = organization.name,
+                projectName = project.projectName,
+                actionOwner = user.fullName,
+                title = event.task.title,
+                taskUrl = taskUrl + event.task.taskId,
+                lines = listOf(line),
+                headerText = headerText
+            )
+
+            val notification = Notification(
+                companyId = organization.id,
+                companyName = organization.name,
+                projectId = project.projectId,
+                projectName = project.projectName,
+                taskId = event.task.taskId,
+                taskName = event.task.title,
+                actionType = ActionType.UPDATED,
+                message = updateText,
+            )
+            val savedNotification = repository.save(notification)
+            sendToUsers(savedNotification, assignedIds, updateText)
+        }
 
         val addedIds = details?.addedEmployeeIds ?: emptyList()
         if (addedIds.isNotEmpty()) {
@@ -161,8 +176,20 @@ class TaskActionServiceImpl(
                 title = event.task.title,
                 taskUrl = taskUrl + event.task.taskId,
                 lines = listOf("siz taskka ulandingiz"),
+                headerText = "📋 <b>Siz topshiriqqa biriktirildingiz:</b>"
             )
-            sendToUsers(savedNotification, addedIds, joinText)
+            val joinNotification = Notification(
+                companyId = organization.id,
+                companyName = organization.name,
+                projectId = project.projectId,
+                projectName = project.projectName,
+                taskId = event.task.taskId,
+                taskName = event.task.title,
+                actionType = ActionType.UPDATED,
+                message = joinText,
+            )
+            val savedJoinNotification = repository.save(joinNotification)
+            sendToUsers(savedJoinNotification, addedIds, joinText)
         }
     }
 
@@ -195,7 +222,6 @@ class TaskActionServiceImpl(
         }
     }
 }
-
 
 
 interface HashService {
@@ -242,7 +268,6 @@ class HashServiceImpl(
 }
 
 
-
 interface UserTelegramService {
     fun createOrUpdate(hash: String, from: User)
 }
@@ -251,9 +276,16 @@ interface UserTelegramService {
 class UserTelegramImpl(
     val repository: UserTelegramRepository,
     val hashService: HashService,
+    private val organizationClient: OrganizationClient,
+    @org.springframework.context.annotation.Lazy private val bot: Bot,
 ) : UserTelegramService {
     override fun createOrUpdate(hash: String, from: User) {
-        val userId = hashService.checkHashAndReturnUserId(hash)
+        val userId = try {
+            hashService.checkHashAndReturnUserId(hash)
+        } catch (e: Exception) {
+            logger.error { "Invalid hash: $hash" }
+            return
+        }
 
         val existingByChatId = repository.findByChatId(from.id)
         val existingByUserId = repository.findByUserIdAndDeletedIsFalse(userId)
@@ -266,12 +298,14 @@ class UserTelegramImpl(
                 this.username = from.userName
                 this.deleted = false
             }
+
             existingByUserId != null -> existingByUserId.apply {
                 this.chatId = from.id
                 this.firstName = from.firstName
                 this.lastName = from.lastName
                 this.username = from.userName
             }
+
             else -> UserTelegram(
                 chatId = from.id,
                 firstName = from.firstName,
@@ -282,5 +316,17 @@ class UserTelegramImpl(
         }
 
         repository.save(user)
+
+        try {
+            val organization = organizationClient.getOrganizationInfo(userId)
+            val text = "Siz muvaffaqiyatli <b>${organization.name}</b> kompaniyasiga ulandingiz!"
+            val sendMessage = SendMessage()
+            sendMessage.chatId = from.id.toString()
+            sendMessage.text = text
+            sendMessage.parseMode = org.telegram.telegrambots.meta.api.methods.ParseMode.HTML
+            bot.execute(sendMessage)
+        } catch (e: Exception) {
+            logger.error { "Welcome message yuborishda xatolik: $e" }
+        }
     }
 }

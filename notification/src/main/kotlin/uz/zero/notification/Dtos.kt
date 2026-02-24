@@ -1,6 +1,4 @@
-package uz.zero.notification.dtos
-import com.fasterxml.jackson.annotation.JsonProperty
-import uz.zero.notification.ActionType
+package uz.zero.notification
 
 
 data class BaseMessage(val code: Int?, val message: String? = null){
