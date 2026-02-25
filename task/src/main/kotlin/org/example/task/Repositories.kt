@@ -115,7 +115,7 @@ interface TaskAssignedEmployeeRepository : BaseRepository<TaskAssignedEmployee>{
 
     @Modifying
     @Query("""
-        update TaskAssignedEmployee t set t.deleted = true
+        delete from TaskAssignedEmployee t
         where t.employeeId in (:employeeIds)
     """)
     fun deleteTaskAssignedEmployeeByEmployeeIds(employeeIds: List<Long>)

@@ -150,6 +150,12 @@ class ThisTaskIsNotYoursExceptions() : TaskAppException() {
 }
 class SomethingWentWrongException() : TaskAppException() {
     override fun errorType() = ErrorCode.SOMETHING_WENT_WRONG
+}
+class EmployeeAlreadyAssignedException() : TaskAppException() {
+    override fun errorType() = ErrorCode.EMPLOYEE_ALREADY_ASSIGNED
+}
 
+class EmployeeAlreadyUnsignedException() : TaskAppException() {
+    override fun errorType() = ErrorCode.EMPLOYEE_ALREADY_UNSIGNED
 }
 

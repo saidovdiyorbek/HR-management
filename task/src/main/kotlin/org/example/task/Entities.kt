@@ -68,6 +68,7 @@ class TaskHistory(
     var newTitle: String? = null,
     var addedAttaches: List<String>? = null,
     var assignedEmployees: List<Long>? = null,
+    var unsignedEmployees: List<Long>? = null,
     var changedByEmployeeId: Long,
     @Enumerated(EnumType.STRING)
     var actionType: ActionType,

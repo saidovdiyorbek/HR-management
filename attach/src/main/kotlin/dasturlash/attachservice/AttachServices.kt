@@ -171,8 +171,7 @@ class AttachServiceImpl(
         repository.findAttachByHashAndDeletedFalse(hash)?.let { attach ->
             val fileName = attach.originName
             val universalPath = attach.fullPath.replace("\\", "/")
-            val rootLocation = Paths.get(fileName)
-            val filePath =  rootLocation.resolve(universalPath)
+            val filePath = Paths.get(universalPath)
             println("FilePath: $filePath")
             val resource = UrlResource(filePath.toUri())
             println("Resource: $resource.toString()")
