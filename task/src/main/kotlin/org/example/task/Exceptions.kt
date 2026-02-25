@@ -158,4 +158,6 @@ class EmployeeAlreadyAssignedException() : TaskAppException() {
 class EmployeeAlreadyUnsignedException() : TaskAppException() {
     override fun errorType() = ErrorCode.EMPLOYEE_ALREADY_UNSIGNED
 }
-
+class ThisTaskInUseException() : TaskAppException() {
+    override fun errorType() = ErrorCode.THIS_TASK_IN_USE
+}

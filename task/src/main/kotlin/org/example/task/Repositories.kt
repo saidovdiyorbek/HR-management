@@ -119,4 +119,5 @@ interface TaskAssignedEmployeeRepository : BaseRepository<TaskAssignedEmployee>{
         where t.employeeId in (:employeeIds)
     """)
     fun deleteTaskAssignedEmployeeByEmployeeIds(employeeIds: List<Long>)
+
 }

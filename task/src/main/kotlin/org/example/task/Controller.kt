@@ -47,3 +47,13 @@ class TaskController(
     @GetMapping("/get-task-actions/{id}")
     fun getTaskActions(@PathVariable id: Long, pageable: Pageable): Page<TaskHistoryResponse> = service.getTaskActions(id, pageable)
 }
+
+@RestController
+@RequestMapping("internal/api/v1/tasks")
+class TaskInternalController(
+    private val service: TaskService
+){
+
+    @GetMapping("check-task/{taskId}")
+    fun checkTask(@PathVariable taskId: Long) = service.checkTask(taskId)
+}

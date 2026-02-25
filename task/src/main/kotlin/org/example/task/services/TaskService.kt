@@ -40,6 +40,7 @@ import org.example.task.TaskHistoryResponse
 import org.example.task.TaskResponse
 import org.example.task.TaskShortInfoDto
 import org.example.task.TaskUpdateRequest
+import org.example.task.ThisTaskInUseException
 import org.example.task.TransferTaskCheckDto
 import org.example.task.toResponse
 import org.springframework.data.domain.Page
@@ -56,6 +57,8 @@ interface TaskService {
     fun assignEmployee(id: Long, employees: List<Long>)
     fun unsignEmployee(id: Long, employees: List<Long>)
     fun getTaskActions(id: Long, pageable: Pageable): Page<TaskHistoryResponse>
+    fun checkTask(taskId: Long): Boolean
+    fun delete(id: Long)
 }
 
 @Service
@@ -470,5 +473,26 @@ class TaskServiceImpl(
             return historyPage.map {it.toResponse()}
         }
         throw TaskNotFoundException()
+    }
+
+    override fun checkTask(taskId: Long): Boolean {
+        repository.findByIdAndDeletedFalse(taskId)?.let {
+            return true
+        }
+        throw TaskNotFoundException()
+    }
+
+    override fun delete(id: Long) {
+        repository.findByIdAndDeletedFalse(id)?.let { task ->
+            val findTaskAssignedEmployeeByTaskId =
+                taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
+            if (findTaskAssignedEmployeeByTaskId.size == 1){
+                val getId = findTaskAssignedEmployeeByTaskId[0]
+                if (getId != task.createUserId){
+                    throw ThisTaskInUseException()
+                }
+                repository.trash(id)
+            }
+        }
     }
 }
