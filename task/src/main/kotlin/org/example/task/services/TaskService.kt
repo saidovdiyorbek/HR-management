@@ -29,6 +29,8 @@ import org.example.task.TaskRepository
 import org.example.task.ThisTaskIsNotYoursExceptions
 import org.example.task.ActionDetails
 import org.example.task.CheckUsersInOrganizationRequest
+import org.example.task.EmployeeAlreadyAssignedException
+import org.example.task.EmployeeAlreadyUnsignedException
 import org.example.task.InternalHashesCheckRequest
 import org.example.task.RelationshipsCheckDto
 import org.example.task.RequestEmployeeRole
@@ -382,20 +384,31 @@ class TaskServiceImpl(
                     action = ActionType.UPDATED,
                     actionDetails = ActionDetails()
                 )
+                val action = TaskHistory(
+                    task = task,
+                    changedByEmployeeId = currentUserId,
+                    actionType = ActionType.UPDATED,
+                )
                 val employeeRole = employeeClient.getEmployeeRole(currentUserId, RequestEmployeeRole(currentUserId,
                     organizationClient.getCurrentOrganizationByUserId(currentUserId).organizationId)).employeeRole
                 if (task.createUserId != currentUserId && employeeRole != EmployeeRole.CEO){
                     throw ThisTaskIsNotYoursExceptions()
                 }
+                val findTaskAssignedEmployeeByTaskId =
+                    taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
                 if(employees.isNotEmpty()){
                     val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
                     employeeClient.checkUsersInOrganization(CheckUsersInOrganizationRequest(currentOrganizationByUserId.organizationId, employees))
                     val assigningEmployees: MutableList<TaskAssignedEmployee> = mutableListOf()
                     employees.forEach { employee ->
+                        val filter = findTaskAssignedEmployeeByTaskId.filter { employees.contains(it) }
+                        if (filter.isNotEmpty()) throw EmployeeAlreadyAssignedException()
                         assigningEmployees.add(TaskAssignedEmployee(task, employee, currentUserId))
                     }
+                    action.assignedEmployees = employees
                     taskAssignedEmployeeRepo.saveAll(assigningEmployees)
                     event.actionDetails?.addedEmployeeIds = employees
+                    taskHistoryRepo.save(action)
                 }
                 try {
                     taskEventPro.sendTaskEvent(event)
@@ -418,6 +431,11 @@ class TaskServiceImpl(
                 if (task.createUserId != currentUserId){
                     throw ThisTaskIsNotYoursExceptions()
                 }
+                val action = TaskHistory(
+                    task = task,
+                    changedByEmployeeId = currentUserId,
+                    actionType = ActionType.UPDATED,
+                )
                 if(employees.isNotEmpty()){
                     //employeelar tekshirib keladi true bolsa keyingi qadam
                     val currentOrganizationByUserId = organizationClient.getCurrentOrganizationByUserId(currentUserId)
@@ -425,7 +443,12 @@ class TaskServiceImpl(
                     val oldAssignedEmployees = taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
 
                     val removeTo = employees.filter { oldAssignedEmployees.contains(it) }
+                    if (removeTo.isEmpty()) {
+                        throw EmployeeAlreadyUnsignedException()
+                    }
                     taskAssignedEmployeeRepo.deleteTaskAssignedEmployeeByEmployeeIds(removeTo)
+                    action.unsignedEmployees = employees
+                    taskHistoryRepo.save(action)
                 }
                 return
             }
