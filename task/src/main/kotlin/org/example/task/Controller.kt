@@ -7,6 +7,7 @@ import org.example.task.services.TaskService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -34,6 +35,9 @@ class TaskController(
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody dto: TaskUpdateRequest) = service.update(id, dto)
 
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long) = service.delete(id)
+
     @PutMapping("/assign/{id}")
     fun assignEmployee(@PathVariable id: Long, @RequestBody employees: List<Long>) = service.assignEmployee(id, employees)
 
@@ -42,4 +46,14 @@ class TaskController(
 
     @GetMapping("/get-task-actions/{id}")
     fun getTaskActions(@PathVariable id: Long, pageable: Pageable): Page<TaskHistoryResponse> = service.getTaskActions(id, pageable)
+}
+
+@RestController
+@RequestMapping("internal/api/v1/tasks")
+class TaskInternalController(
+    private val service: TaskService
+){
+
+    @GetMapping("check-task/{taskId}")
+    fun checkTask(@PathVariable taskId: Long) = service.checkTask(taskId)
 }
