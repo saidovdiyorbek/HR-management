@@ -483,16 +483,20 @@ class TaskServiceImpl(
     }
 
     override fun delete(id: Long) {
+        val currentUserId = security.getCurrentUserId()
         repository.findByIdAndDeletedFalse(id)?.let { task ->
+            if (currentUserId != task.createUserId) throw ThisTaskIsNotYoursExceptions()
             val findTaskAssignedEmployeeByTaskId =
                 taskAssignedEmployeeRepo.findTaskAssignedEmployeeByTaskId(task.id!!)
-            if (findTaskAssignedEmployeeByTaskId.size == 1){
+            if (findTaskAssignedEmployeeByTaskId.size <= 1){
                 val getId = findTaskAssignedEmployeeByTaskId[0]
                 if (getId != task.createUserId){
                     throw ThisTaskInUseException()
                 }
                 repository.trash(id)
+                return
             }
+            throw ThisTaskInUseException()
         }
     }
 }
