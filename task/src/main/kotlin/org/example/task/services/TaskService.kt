@@ -461,7 +461,11 @@ class TaskServiceImpl(
         id: Long,
         pageable: Pageable
         ): Page<TaskHistoryResponse> {
+        val currentUserId = security.getCurrentUserId()
         repository.findByIdAndDeletedFalse(id)?.let { task ->
+            if (task.createUserId != currentUserId){
+                throw ThisTaskIsNotYoursExceptions()
+            }
             val historyPage = taskHistoryRepo.findTaskHistoryByTaskId(task.id!!, pageable)
             return historyPage.map {it.toResponse()}
         }
